@@ -1,6 +1,7 @@
 import { PlayerShell, Card } from "@/components/PlayerShell";
 import { ErgebnisForm } from "@/components/ErgebnisForm";
 import { createClient } from "@/lib/supabase/server";
+import { firstRow } from "@/lib/util";
 
 export const metadata = { title: "Ergebnis eintragen – Bierpong" };
 
@@ -18,7 +19,7 @@ export default async function TischPage({
   try {
     const supabase = await createClient();
     const { data } = await supabase.rpc("get_table", { p_token: token });
-    const row = Array.isArray(data) ? data[0] : data;
+    const row = firstRow(data);
     if (row?.name) tableName = row.name;
     else invalidToken = true;
   } catch {

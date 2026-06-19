@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ErrorNote } from "@/components/ui";
 import { LockIcon } from "@/components/icons";
 
 function LoginForm() {
@@ -55,11 +56,7 @@ function LoginForm() {
           className="input text-center text-lg tracking-widest"
         />
 
-        {error ? (
-          <p className="rounded-xl bg-negative/10 px-3.5 py-2.5 text-sm text-negative">
-            {error}
-          </p>
-        ) : null}
+        {error ? <ErrorNote>{error}</ErrorNote> : null}
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? "Anmelden…" : "Anmelden"}

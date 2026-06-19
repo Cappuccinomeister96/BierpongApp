@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrigin } from "@/lib/useOrigin";
+import { firstRow, isOffline } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
 import { Rules } from "@/components/Rules";
 import { QrCode } from "@/components/QrCode";
-import { CheckIcon, ChevronDownIcon } from "@/components/icons";
+import { ErrorNote, SuccessHeader } from "@/components/ui";
+import { ChevronDownIcon } from "@/components/icons";
 
 type Success = { teamName: string; confirmToken: string };
 
@@ -22,10 +25,9 @@ export function AnmeldeForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<Success | null>(null);
-  const [origin, setOrigin] = useState("");
+  const origin = useOrigin();
 
   useEffect(() => {
-    setOrigin(window.location.origin);
     supabase
       .from("config")
       .select("sieg_punkte, niederlage_punkte")
@@ -44,7 +46,7 @@ export function AnmeldeForm() {
       setError("Bitte bestätige, dass ihr die Regeln kennt.");
       return;
     }
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
+    if (isOffline()) {
       setError("Keine Internetverbindung. Bitte Netz prüfen und erneut versuchen.");
       return;
     }
@@ -59,7 +61,7 @@ export function AnmeldeForm() {
         setError(error.message || "Anmeldung fehlgeschlagen. Bitte nochmal versuchen.");
         return;
       }
-      const row = Array.isArray(data) ? data[0] : data;
+      const row = firstRow(data);
       if (!row?.confirm_token) {
         setError("Unerwartete Antwort. Bitte beim Schiedsrichter melden.");
         return;
@@ -77,16 +79,10 @@ export function AnmeldeForm() {
     return (
       <div className="space-y-4">
         <Card className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-positive/10 text-positive">
-            <CheckIcon size={26} />
-          </div>
-          <h1 className="mt-3 text-xl font-semibold tracking-tight">
-            Team angemeldet
-          </h1>
-          <p className="mt-1 text-[15px] text-muted">
+          <SuccessHeader title="Team angemeldet">
             <span className="font-medium text-ink">{success.teamName}</span>{" "}
             wartet auf die Bestätigung des Schiedsrichters.
-          </p>
+          </SuccessHeader>
         </Card>
 
         <Card className="flex flex-col items-center text-center">
@@ -178,11 +174,7 @@ export function AnmeldeForm() {
           <span>Wir kennen die Regeln und spielen fair.</span>
         </label>
 
-        {error ? (
-          <p className="rounded-xl bg-negative/10 px-3.5 py-2.5 text-sm text-negative">
-            {error}
-          </p>
-        ) : null}
+        {error ? <ErrorNote>{error}</ErrorNote> : null}
 
         <button type="submit" disabled={submitting} className="btn-primary w-full">
           {submitting ? "Wird angemeldet…" : "Team anmelden"}

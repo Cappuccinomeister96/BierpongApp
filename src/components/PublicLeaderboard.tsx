@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { LeaderboardTable } from "@/components/LeaderboardTable";
 import type { PublicLeaderboardRow } from "@/lib/types";
 
 export function PublicLeaderboard() {
@@ -64,48 +65,7 @@ export function PublicLeaderboard() {
           Noch keine Teams. Sobald gespielt wird, erscheint hier die Tabelle.
         </div>
       ) : (
-        <div className="card divide-y divide-line overflow-hidden">
-          <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-faint sm:px-5">
-            <span className="w-7 shrink-0">#</span>
-            <span className="flex-1">Team</span>
-            <span className="w-9 text-center">Sp</span>
-            <span className="w-9 text-center">S</span>
-            <span className="w-9 text-center">N</span>
-            <span className="w-14 text-right">Punkte</span>
-          </div>
-          {rows.map((r) => {
-            const top = r.rank <= 3;
-            return (
-              <div
-                key={r.team}
-                className="flex items-center gap-3 px-4 py-3.5 sm:px-5"
-              >
-                <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums ${
-                    top ? "bg-ink text-card" : "bg-inset text-muted"
-                  }`}
-                >
-                  {r.rank}
-                </span>
-                <span className="flex-1 truncate text-[17px] font-medium tracking-tight">
-                  {r.team}
-                </span>
-                <span className="w-9 text-center tabular-nums text-muted">
-                  {r.games}
-                </span>
-                <span className="w-9 text-center tabular-nums text-positive">
-                  {r.wins}
-                </span>
-                <span className="w-9 text-center tabular-nums text-negative">
-                  {r.losses}
-                </span>
-                <span className="w-14 text-right text-xl font-semibold tabular-nums">
-                  {r.points}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        <LeaderboardTable rows={rows} highlightTop />
       )}
     </div>
   );

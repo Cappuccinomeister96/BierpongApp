@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { WinnerPicker } from "@/components/ui";
 import type { MatchDetailed } from "@/lib/types";
 import type { DashboardData } from "./Dashboard";
 
@@ -46,9 +47,6 @@ function PendingCard({
     await reload();
   }
 
-  const reportedName =
-    match.winner_id === match.team_a_id ? match.team_a_name : match.team_b_name;
-
   return (
     <div className={`card p-4 ${duplicate ? "ring-1 ring-negative/30" : ""}`}>
       <div className="mb-3 flex items-center justify-between text-xs text-faint">
@@ -62,30 +60,17 @@ function PendingCard({
       ) : null}
       <p className="mb-2 text-xs text-muted">
         Sieger wählen · gemeldet:{" "}
-        <span className="font-medium text-ink">{reportedName}</span>
+        <span className="font-medium text-ink">{match.winner_name}</span>
       </p>
-      <div className="grid grid-cols-2 gap-2">
-        {[
+      <WinnerPicker
+        options={[
           { id: match.team_a_id, name: match.team_a_name },
           { id: match.team_b_id, name: match.team_b_name },
-        ].map((t) => {
-          const active = winner === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setWinner(t.id)}
-              disabled={busy}
-              className={`min-h-11 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
-                active
-                  ? "border-positive bg-positive/10 text-positive"
-                  : "border-line hover:bg-inset"
-              }`}
-            >
-              {t.name}
-            </button>
-          );
-        })}
-      </div>
+        ]}
+        value={winner}
+        onChange={setWinner}
+        disabled={busy}
+      />
       <div className="mt-3 flex gap-2">
         <button onClick={approve} disabled={busy} className="btn-positive flex-1">
           Bestätigen
@@ -158,10 +143,7 @@ export function ApprovalQueue({
             Zuletzt entschieden
           </h2>
           <div className="card divide-y divide-line overflow-hidden">
-            {data.recent.map((m) => {
-              const winnerName =
-                m.winner_id === m.team_a_id ? m.team_a_name : m.team_b_name;
-              return (
+            {data.recent.map((m) => (
                 <div
                   key={m.id}
                   className="flex items-center justify-between gap-3 px-4 py-3 text-sm"
@@ -172,7 +154,7 @@ export function ApprovalQueue({
                     </span>
                     {m.status === "approved" ? (
                       <span className="ml-2 font-medium text-positive">
-                        {winnerName}
+                        {m.winner_name}
                       </span>
                     ) : (
                       <span className="ml-2 font-medium text-negative">
@@ -187,8 +169,7 @@ export function ApprovalQueue({
                     rückgängig
                   </button>
                 </div>
-              );
-            })}
+            ))}
           </div>
         </section>
       ) : null}

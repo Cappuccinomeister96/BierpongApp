@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { CheckIcon } from "@/components/icons";
+import { CheckCircle, ErrorNote } from "@/components/ui";
+import type { TeamStatus } from "@/lib/types";
 
-function StatusChip({ status }: { status: "yellow" | "green" }) {
+function StatusChip({ status }: { status: TeamStatus }) {
   const green = status === "green";
   return (
     <span
@@ -22,7 +23,7 @@ function StatusChip({ status }: { status: "yellow" | "green" }) {
 export function ConfirmTeam({
   team,
 }: {
-  team: { id: string; name: string; vorname1: string; vorname2: string; status: "yellow" | "green" };
+  team: { id: string; name: string; vorname1: string; vorname2: string; status: TeamStatus };
 }) {
   const supabase = createClient();
   const [status, setStatus] = useState(team.status);
@@ -30,7 +31,7 @@ export function ConfirmTeam({
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(team.status === "green");
 
-  async function setTeam(next: "yellow" | "green") {
+  async function setTeam(next: TeamStatus) {
     setBusy(true);
     setError(null);
     const { error } = await supabase
@@ -50,11 +51,7 @@ export function ConfirmTeam({
     <div className="flex min-h-full items-center justify-center px-5 py-10">
       <div className="card w-full max-w-sm space-y-5 p-6">
         <div className="text-center">
-          {done ? (
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-positive/10 text-positive">
-              <CheckIcon size={26} />
-            </div>
-          ) : null}
+          {done ? <CheckCircle className="mx-auto" /> : null}
           <h1 className="mt-3 text-xl font-semibold tracking-tight">
             {done ? "Team bestätigt" : "Team bestätigen"}
           </h1>
@@ -78,11 +75,7 @@ export function ConfirmTeam({
           </div>
         </div>
 
-        {error ? (
-          <p className="rounded-xl bg-negative/10 px-3.5 py-2.5 text-sm text-negative">
-            {error}
-          </p>
-        ) : null}
+        {error ? <ErrorNote>{error}</ErrorNote> : null}
 
         {!done ? (
           <button

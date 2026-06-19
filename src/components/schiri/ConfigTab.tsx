@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { DashboardData } from "./Dashboard";
 
+const DEFAULTS = { name: "Bierpong-Turnier", sieg: 3, niederlage: -1 };
+
 export function ConfigTab({
   data,
   reload,
@@ -14,16 +16,18 @@ export function ConfigTab({
   const supabase = createClient();
   const cfg = data.config;
 
-  const [name, setName] = useState(cfg?.tournament_name ?? "Bierpong-Turnier");
-  const [sieg, setSieg] = useState(cfg?.sieg_punkte ?? 3);
-  const [niederlage, setNiederlage] = useState(cfg?.niederlage_punkte ?? -1);
+  const [name, setName] = useState(cfg?.tournament_name ?? DEFAULTS.name);
+  const [sieg, setSieg] = useState(cfg?.sieg_punkte ?? DEFAULTS.sieg);
+  const [niederlage, setNiederlage] = useState(
+    cfg?.niederlage_punkte ?? DEFAULTS.niederlage,
+  );
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function save() {
     const pointsChanged =
-      Math.trunc(sieg) !== (cfg?.sieg_punkte ?? 3) ||
-      Math.trunc(niederlage) !== (cfg?.niederlage_punkte ?? -1);
+      Math.trunc(sieg) !== (cfg?.sieg_punkte ?? DEFAULTS.sieg) ||
+      Math.trunc(niederlage) !== (cfg?.niederlage_punkte ?? DEFAULTS.niederlage);
     if (pointsChanged) {
       const ok = confirm(
         "Die Punkteänderung wirkt RÜCKWIRKEND auf alle bereits gespielten Spiele und verändert die Tabelle sofort. Fortfahren?",
@@ -35,7 +39,7 @@ export function ConfigTab({
     await supabase
       .from("config")
       .update({
-        tournament_name: name.trim() || "Bierpong-Turnier",
+        tournament_name: name.trim() || DEFAULTS.name,
         sieg_punkte: Math.trunc(sieg),
         niederlage_punkte: Math.trunc(niederlage),
         updated_at: new Date().toISOString(),

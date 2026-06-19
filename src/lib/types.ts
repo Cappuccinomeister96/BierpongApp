@@ -6,7 +6,6 @@ export type Config = {
   tournament_name: string;
   sieg_punkte: number;
   niederlage_punkte: number;
-  started_at: string | null;
   updated_at: string;
 };
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrigin } from "@/lib/useOrigin";
 import { QrCode } from "@/components/QrCode";
 import { PrinterIcon, PlusIcon } from "@/components/icons";
 import type { TableRow } from "@/lib/types";
@@ -35,13 +36,9 @@ export function TablesTab({
   reload: () => Promise<void>;
 }) {
   const supabase = createClient();
-  const [origin, setOrigin] = useState("");
+  const origin = useOrigin();
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
 
   async function addTable() {
     if (!name.trim()) return;

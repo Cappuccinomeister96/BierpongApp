@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isOffline } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
-import { CheckIcon } from "@/components/icons";
+import { ErrorNote, SuccessHeader, WinnerPicker } from "@/components/ui";
 import type { PublicTeam } from "@/lib/types";
 
 function TeamPicker({
@@ -134,7 +135,7 @@ export function ErgebnisForm({
       setError("Bitte den Sieger wählen.");
       return;
     }
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
+    if (isOffline()) {
       setError("Keine Internetverbindung. Bitte Netz prüfen und erneut senden.");
       return;
     }
@@ -170,16 +171,10 @@ export function ErgebnisForm({
     return (
       <div className="space-y-4">
         <Card className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-positive/10 text-positive">
-            <CheckIcon size={26} />
-          </div>
-          <h1 className="mt-3 text-xl font-semibold tracking-tight">
-            Ergebnis gemeldet
-          </h1>
-          <p className="mt-1 text-[15px] text-muted">
+          <SuccessHeader title="Ergebnis gemeldet">
             Der Schiedsrichter bestätigt das Spiel gleich. Erst dann zählen die
             Punkte.
-          </p>
+          </SuccessHeader>
         </Card>
         <button onClick={reset} className="btn-primary w-full">
           Nächstes Ergebnis eintragen
@@ -238,35 +233,17 @@ export function ErgebnisForm({
             {teamA && teamB ? (
               <div>
                 <label className="label">Sieger</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {winnerOptions.map((t) => {
-                    const active = winnerId === t.id;
-                    return (
-                      <button
-                        type="button"
-                        key={t.id}
-                        onClick={() => setWinnerId(t.id)}
-                        className={`min-h-12 rounded-xl border px-3 py-3 text-[15px] font-medium transition active:scale-[0.98] ${
-                          active
-                            ? "border-positive bg-positive/10 text-positive"
-                            : "border-line hover:bg-inset"
-                        }`}
-                      >
-                        {t.name}
-                      </button>
-                    );
-                  })}
-                </div>
+                <WinnerPicker
+                  options={winnerOptions}
+                  value={winnerId}
+                  onChange={setWinnerId}
+                />
               </div>
             ) : null}
           </>
         )}
 
-        {error ? (
-          <p className="rounded-xl bg-negative/10 px-3.5 py-2.5 text-sm text-negative">
-            {error}
-          </p>
-        ) : null}
+        {error ? <ErrorNote>{error}</ErrorNote> : null}
 
         <button
           type="submit"

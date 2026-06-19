@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { PlusIcon } from "@/components/icons";
-import type { Team } from "@/lib/types";
+import type { Team, TeamStatus } from "@/lib/types";
 import type { DashboardData } from "./Dashboard";
 
 function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) {
@@ -15,7 +15,7 @@ function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  async function setStatus(status: "green" | "yellow") {
+  async function setStatus(status: TeamStatus) {
     setBusy(true);
     await supabase.from("teams").update({ status }).eq("id", team.id);
     await reload();
