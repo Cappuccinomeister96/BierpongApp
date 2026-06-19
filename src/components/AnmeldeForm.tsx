@@ -44,23 +44,32 @@ export function AnmeldeForm() {
       setError("Bitte bestätige, dass ihr die Regeln kennt.");
       return;
     }
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setError("Keine Internetverbindung. Bitte Netz prüfen und erneut versuchen.");
+      return;
+    }
     setSubmitting(true);
-    const { data, error } = await supabase.rpc("register_team", {
-      p_name: name,
-      p_vorname1: vorname1,
-      p_vorname2: vorname2,
-    });
-    setSubmitting(false);
-    if (error) {
-      setError(error.message || "Anmeldung fehlgeschlagen. Bitte nochmal versuchen.");
-      return;
+    try {
+      const { data, error } = await supabase.rpc("register_team", {
+        p_name: name,
+        p_vorname1: vorname1,
+        p_vorname2: vorname2,
+      });
+      if (error) {
+        setError(error.message || "Anmeldung fehlgeschlagen. Bitte nochmal versuchen.");
+        return;
+      }
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.confirm_token) {
+        setError("Unerwartete Antwort. Bitte beim Schiedsrichter melden.");
+        return;
+      }
+      setSuccess({ teamName: name.trim(), confirmToken: row.confirm_token });
+    } catch {
+      setError("Verbindungsproblem. Bitte erneut versuchen.");
+    } finally {
+      setSubmitting(false);
     }
-    const row = Array.isArray(data) ? data[0] : data;
-    if (!row?.confirm_token) {
-      setError("Unerwartete Antwort. Bitte beim Schiedsrichter melden.");
-      return;
-    }
-    setSuccess({ teamName: name.trim(), confirmToken: row.confirm_token });
   }
 
   if (success) {

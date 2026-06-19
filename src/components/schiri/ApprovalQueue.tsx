@@ -17,9 +17,11 @@ function timeAgo(iso: string) {
 function PendingCard({
   match,
   reload,
+  duplicate,
 }: {
   match: MatchDetailed;
   reload: () => Promise<void>;
+  duplicate?: boolean;
 }) {
   const supabase = createClient();
   const [winner, setWinner] = useState(match.winner_id);
@@ -48,11 +50,16 @@ function PendingCard({
     match.winner_id === match.team_a_id ? match.team_a_name : match.team_b_name;
 
   return (
-    <div className="card p-4">
+    <div className={`card p-4 ${duplicate ? "ring-1 ring-negative/30" : ""}`}>
       <div className="mb-3 flex items-center justify-between text-xs text-faint">
         <span>{match.table_name ?? "Ohne Tisch"}</span>
         <span>{timeAgo(match.created_at)}</span>
       </div>
+      {duplicate ? (
+        <p className="mb-2 chip bg-negative/10 text-negative">
+          Mögliches Duplikat – dieselbe Paarung kommt mehrfach vor
+        </p>
+      ) : null}
       <p className="mb-2 text-xs text-muted">
         Sieger wählen · gemeldet:{" "}
         <span className="font-medium text-ink">{reportedName}</span>
@@ -112,6 +119,15 @@ export function ApprovalQueue({
     await reload();
   }
 
+  // Paarungen markieren, die mehrfach in der Queue stehen (mögliche Duplikate)
+  const pairCount = new Map<string, number>();
+  for (const m of data.pending) {
+    const key = [m.team_a_id, m.team_b_id].sort().join("|");
+    pairCount.set(key, (pairCount.get(key) ?? 0) + 1);
+  }
+  const isDuplicate = (m: MatchDetailed) =>
+    (pairCount.get([m.team_a_id, m.team_b_id].sort().join("|")) ?? 0) > 1;
+
   return (
     <div className="space-y-6">
       <section>
@@ -125,7 +141,12 @@ export function ApprovalQueue({
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {data.pending.map((m) => (
-              <PendingCard key={m.id} match={m} reload={reload} />
+              <PendingCard
+                key={m.id}
+                match={m}
+                reload={reload}
+                duplicate={isDuplicate(m)}
+              />
             ))}
           </div>
         )}

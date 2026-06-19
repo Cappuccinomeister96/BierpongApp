@@ -134,19 +134,28 @@ export function ErgebnisForm({
       setError("Bitte den Sieger wählen.");
       return;
     }
-    setSubmitting(true);
-    const { error } = await supabase.rpc("submit_match", {
-      p_table_token: tableToken,
-      p_team_a: teamA.id,
-      p_team_b: teamB.id,
-      p_winner: winnerId,
-    });
-    setSubmitting(false);
-    if (error) {
-      setError(error.message || "Konnte nicht gespeichert werden. Bitte nochmal.");
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setError("Keine Internetverbindung. Bitte Netz prüfen und erneut senden.");
       return;
     }
-    setDone(true);
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.rpc("submit_match", {
+        p_table_token: tableToken,
+        p_team_a: teamA.id,
+        p_team_b: teamB.id,
+        p_winner: winnerId,
+      });
+      if (error) {
+        setError(error.message || "Konnte nicht gespeichert werden. Bitte nochmal.");
+        return;
+      }
+      setDone(true);
+    } catch {
+      setError("Verbindungsproblem. Bitte erneut versuchen.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function reset() {

@@ -21,6 +21,15 @@ export function ConfigTab({
   const [busy, setBusy] = useState(false);
 
   async function save() {
+    const pointsChanged =
+      Math.trunc(sieg) !== (cfg?.sieg_punkte ?? 3) ||
+      Math.trunc(niederlage) !== (cfg?.niederlage_punkte ?? -1);
+    if (pointsChanged) {
+      const ok = confirm(
+        "Die Punkteänderung wirkt RÜCKWIRKEND auf alle bereits gespielten Spiele und verändert die Tabelle sofort. Fortfahren?",
+      );
+      if (!ok) return;
+    }
     setBusy(true);
     setSaved(false);
     await supabase
@@ -92,6 +101,17 @@ export function ConfigTab({
         <p className="text-xs text-muted">
           Änderungen wirken sofort auf das gesamte Leaderboard.
         </p>
+      </section>
+
+      <section className="card space-y-2 p-5">
+        <h2 className="font-semibold tracking-tight">Checkliste vor dem Event</h2>
+        <ul className="space-y-1.5 text-sm text-muted">
+          <li>Supabase-Projekt auf Pro upgraden (kein Auto-Pause, Backups).</li>
+          <li>Im Tab „Tische" alle Tische anlegen und QR-Codes drucken &amp; laminieren.</li>
+          <li>Anmelde- und Leaderboard-QR drucken.</li>
+          <li>Schiri-PIN an alle Schiedsrichter geben.</li>
+          <li>Mit Testteams einen Durchlauf machen, danach hier komplett zurücksetzen.</li>
+        </ul>
       </section>
 
       <section className="space-y-3 rounded-2xl border border-negative/20 bg-negative/5 p-5">
