@@ -16,6 +16,7 @@ export type Team = {
   vorname1: string;
   vorname2: string;
   status: TeamStatus;
+  hidden: boolean;
   confirm_token: string;
   created_by: "player" | "referee";
   created_at: string;

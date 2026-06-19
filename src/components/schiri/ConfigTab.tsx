@@ -107,7 +107,7 @@ export function ConfigTab({
         <h2 className="font-semibold tracking-tight">Checkliste vor dem Event</h2>
         <ul className="space-y-1.5 text-sm text-muted">
           <li>Supabase-Projekt auf Pro upgraden (kein Auto-Pause, Backups).</li>
-          <li>Im Tab „Tische" alle Tische anlegen und QR-Codes drucken &amp; laminieren.</li>
+          <li>Im Tab Tische alle Tische anlegen und QR-Codes drucken &amp; laminieren.</li>
           <li>Anmelde- und Leaderboard-QR drucken.</li>
           <li>Schiri-PIN an alle Schiedsrichter geben.</li>
           <li>Mit Testteams einen Durchlauf machen, danach hier komplett zurücksetzen.</li>

@@ -103,7 +103,9 @@ export function Dashboard({ email }: { email: string }) {
     router.refresh();
   }
 
-  const yellowCount = data.teams.filter((t) => t.status === "yellow").length;
+  const yellowCount = data.teams.filter(
+    (t) => t.status === "yellow" && !t.hidden,
+  ).length;
 
   const tabs: { id: Tab; label: string; badge?: number }[] = [
     { id: "queue", label: "Freigabe", badge: data.pending.length },

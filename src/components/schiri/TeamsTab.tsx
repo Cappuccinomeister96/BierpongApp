@@ -38,9 +38,14 @@ function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) 
   }
 
   async function remove() {
-    if (!confirm(`Team „${team.name}" löschen? Spiele bleiben erhalten.`)) return;
+    if (
+      !confirm(
+        `Team „${team.name}" aus dem Turnier entfernen? Bereits gespielte Partien und alle Punkte (auch der Gegner) bleiben unverändert erhalten.`,
+      )
+    )
+      return;
     setBusy(true);
-    await supabase.from("teams").delete().eq("id", team.id);
+    await supabase.rpc("remove_team", { p_team_id: team.id });
     await reload();
   }
 
@@ -89,7 +94,7 @@ function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) 
             disabled={busy}
             className="btn-secondary btn-sm !text-negative"
           >
-            Löschen
+            Entfernen
           </button>
         </div>
       </div>
@@ -203,6 +208,29 @@ function AddTeam({ reload }: { reload: () => Promise<void> }) {
   );
 }
 
+function RemovedRow({ team, reload }: { team: Team; reload: () => Promise<void> }) {
+  const supabase = createClient();
+  const [busy, setBusy] = useState(false);
+  async function restore() {
+    setBusy(true);
+    await supabase.from("teams").update({ hidden: false }).eq("id", team.id);
+    await reload();
+  }
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <div className="min-w-0">
+        <div className="truncate font-medium text-muted">{team.name}</div>
+        <div className="truncate text-sm text-faint">
+          {team.vorname1} &amp; {team.vorname2}
+        </div>
+      </div>
+      <button onClick={restore} disabled={busy} className="btn-secondary btn-sm">
+        Wiederherstellen
+      </button>
+    </div>
+  );
+}
+
 export function TeamsTab({
   data,
   reload,
@@ -210,8 +238,10 @@ export function TeamsTab({
   data: DashboardData;
   reload: () => Promise<void>;
 }) {
-  const yellow = data.teams.filter((t) => t.status === "yellow");
-  const green = data.teams.filter((t) => t.status === "green");
+  const active = data.teams.filter((t) => !t.hidden);
+  const yellow = active.filter((t) => t.status === "yellow");
+  const green = active.filter((t) => t.status === "green");
+  const removed = data.teams.filter((t) => t.hidden);
 
   const section = (title: string, teams: Team[]) =>
     teams.length > 0 ? (
@@ -230,12 +260,28 @@ export function TeamsTab({
   return (
     <div className="space-y-6">
       <AddTeam reload={reload} />
-      {data.teams.length === 0 ? (
+      {active.length === 0 && removed.length === 0 ? (
         <p className="px-1 text-muted">Noch keine Teams angemeldet.</p>
       ) : (
         <>
           {section("Wartet auf Bestätigung", yellow)}
           {section("Bestätigt", green)}
+          {removed.length > 0 ? (
+            <section>
+              <h2 className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-faint">
+                Entfernt ({removed.length})
+              </h2>
+              <p className="mb-2 px-1 text-xs text-faint">
+                Aus der Wertung genommen – ihre gespielten Partien und alle
+                Punkte der Gegner bleiben erhalten.
+              </p>
+              <div className="card divide-y divide-line overflow-hidden">
+                {removed.map((t) => (
+                  <RemovedRow key={t.id} team={t} reload={reload} />
+                ))}
+              </div>
+            </section>
+          ) : null}
         </>
       )}
     </div>
