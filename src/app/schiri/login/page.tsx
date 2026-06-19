@@ -1,0 +1,78 @@
+"use client";
+
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { LockIcon } from "@/components/icons";
+
+function LoginForm() {
+  const supabase = createClient();
+  const router = useRouter();
+  const params = useSearchParams();
+  const redirect = params.get("redirect") || "/schiri";
+
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: process.env.NEXT_PUBLIC_SCHIRI_EMAIL!,
+      password: pin,
+    });
+    if (error) {
+      setLoading(false);
+      setError("Falsche PIN. Bitte erneut versuchen.");
+      return;
+    }
+    router.replace(redirect);
+    router.refresh();
+  }
+
+  return (
+    <div className="flex min-h-full items-center justify-center px-5 py-10">
+      <form onSubmit={handleSubmit} className="card w-full max-w-sm space-y-5 p-6">
+        <div className="text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-inset text-ink">
+            <LockIcon size={22} />
+          </div>
+          <h1 className="mt-3 text-xl font-semibold tracking-tight">
+            Schiedsrichter
+          </h1>
+          <p className="mt-1 text-[15px] text-muted">Bitte die Schiri-PIN eingeben.</p>
+        </div>
+
+        <input
+          type="password"
+          inputMode="text"
+          autoFocus
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          placeholder="PIN"
+          className="input text-center text-lg tracking-widest"
+        />
+
+        {error ? (
+          <p className="rounded-xl bg-negative/10 px-3.5 py-2.5 text-sm text-negative">
+            {error}
+          </p>
+        ) : null}
+
+        <button type="submit" disabled={loading} className="btn-primary w-full">
+          {loading ? "Anmelden…" : "Anmelden"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function SchiriLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
