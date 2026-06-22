@@ -125,9 +125,19 @@ export function Dashboard({ email }: { email: string }) {
             </div>
             <div className="text-xs text-faint">{email}</div>
           </div>
-          <button onClick={logout} className="btn-secondary btn-sm">
-            Abmelden
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary btn-sm"
+            >
+              Standardansicht
+            </a>
+            <button onClick={logout} className="btn-secondary btn-sm">
+              Abmelden
+            </button>
+          </div>
         </div>
         <div className="mx-auto w-full max-w-5xl px-2 pb-2">
           <nav className="flex gap-1 overflow-x-auto rounded-xl bg-inset p-1">
@@ -137,7 +147,7 @@ export function Dashboard({ email }: { email: string }) {
                 onClick={() => setTab(t.id)}
                 className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition ${
                   tab === t.id
-                    ? "bg-card text-ink shadow-card"
+                    ? "bg-tint text-accent shadow-card"
                     : "text-muted hover:text-ink"
                 }`}
               >

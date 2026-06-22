@@ -26,7 +26,7 @@ function LoginForm() {
     });
     if (error) {
       setLoading(false);
-      setError("Falsche PIN. Bitte erneut versuchen.");
+      setError("Falsches Passwort. Bitte erneut versuchen.");
       return;
     }
     router.replace(redirect);
@@ -43,18 +43,26 @@ function LoginForm() {
           <h1 className="mt-3 text-xl font-semibold tracking-tight">
             Schiedsrichter
           </h1>
-          <p className="mt-1 text-[15px] text-muted">Bitte die Schiri-PIN eingeben.</p>
+          <p className="mt-1 text-[15px] text-muted">
+            Bitte das Schiri-Passwort eingeben.
+          </p>
         </div>
 
-        <input
-          type="password"
-          inputMode="text"
-          autoFocus
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          placeholder="PIN"
-          className="input text-center text-lg tracking-widest"
-        />
+        <div>
+          <label className="label" htmlFor="schiri-pw">
+            Passwort
+          </label>
+          <input
+            id="schiri-pw"
+            type="password"
+            autoComplete="current-password"
+            autoFocus
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            placeholder="Passwort eingeben"
+            className="input"
+          />
+        </div>
 
         {error ? <ErrorNote>{error}</ErrorNote> : null}
 

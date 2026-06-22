@@ -49,6 +49,9 @@ export function PublicLeaderboard() {
           <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
             {tournamentName}
           </h1>
+          <p className="mt-1 text-sm font-medium text-accent">
+            100 Jahre TSV Stelingen · 2026
+          </p>
         </div>
         {updatedAt ? (
           <p className="text-xs tabular-nums text-faint">

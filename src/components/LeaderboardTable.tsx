@@ -42,7 +42,9 @@ export function LeaderboardTable({
         return (
           <div
             key={r.team_id ?? r.team}
-            className="flex items-center gap-3 px-4 py-3.5 sm:px-5"
+            className={`flex items-center gap-3 px-4 py-3.5 sm:px-5 ${
+              top ? "bg-tint/50" : ""
+            }`}
           >
             {highlightTop ? (
               <span

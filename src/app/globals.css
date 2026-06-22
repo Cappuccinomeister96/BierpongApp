@@ -9,8 +9,11 @@
   --color-muted: #6e6e73;
   --color-faint: #8e8e93;
   --color-line: #e3e3e6;
-  --color-accent: #0071e3;
-  --color-accent-press: #0064c8;
+  /* Vereinsblau in Anlehnung an TSV Stelingen (#0b7dca). */
+  --color-accent: #0b7dca;
+  --color-accent-press: #0964a8;
+  /* Heller Blauton aus dem TSV-Aktiv-/Hover-Zustand. */
+  --color-tint: #dfebf4;
   --color-positive: #2fa84f;
   --color-negative: #e0352b;
 
