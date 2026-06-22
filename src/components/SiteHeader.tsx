@@ -11,17 +11,16 @@ export function SiteHeader() {
         href="/"
         className="relative mx-auto flex w-full max-w-md items-center gap-4 px-5 py-4"
       >
-        {/* Vereinslogo: zum Tauschen public/Stelingen_TSV.gif ersetzen. */}
-        <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-card shadow-card">
-          <Image
-            src="/Stelingen_TSV.gif"
-            alt="TSV Stelingen"
-            width={52}
-            height={52}
-            priority
-            unoptimized
-          />
-        </div>
+        {/* Vereinslogo (transparenter Hintergrund): zum Tauschen public/Stelingen_TSV.gif ersetzen. */}
+        <Image
+          src="/Stelingen_TSV.gif"
+          alt="TSV Stelingen"
+          width={60}
+          height={60}
+          priority
+          unoptimized
+          className="h-16 w-16 shrink-0 object-contain"
+        />
         <div className="min-w-0">
           {/* Fluid skaliert: passt einzeilig & ohne Overflow in jede Header-Breite.
               Textbreite = 10×fontSize, verfügbar = Breite−120px → 10vw−13px (≈10px Puffer), max 26px. */}
