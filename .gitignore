@@ -44,3 +44,6 @@ deno.lock
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# assets
+/public/Stelingen_TSV.gif

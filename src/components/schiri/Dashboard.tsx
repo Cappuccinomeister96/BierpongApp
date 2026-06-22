@@ -159,7 +159,7 @@ export function Dashboard({ email }: { email: string }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl px-4 py-5">
+      <div className="mx-auto w-full max-w-5xl px-4 py-5">
         {loading ? (
           <p className="text-muted">Lädt…</p>
         ) : tab === "queue" ? (
@@ -173,7 +173,7 @@ export function Dashboard({ email }: { email: string }) {
         ) : (
           <ConfigTab data={data} reload={reload} />
         )}
-      </main>
+      </div>
     </div>
   );
 }

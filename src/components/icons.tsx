@@ -78,3 +78,27 @@ export function LockIcon({ size = 20, className }: IconProps) {
     </svg>
   );
 }
+
+export function TeamIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="9" cy="7" r="3" />
+      <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+      <path d="M16 9h5l-.8 8.2a2 2 0 0 1-2 1.8h.6" />
+      <path d="M16.4 13h4.2" />
+    </svg>
+  );
+}
+
+export function TrophyIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+      <path d="M7 6H4v1a3 3 0 0 0 3 3" />
+      <path d="M17 6h3v1a3 3 0 0 1-3 3" />
+      <path d="M12 14v3" />
+      <path d="M8.5 20h7" />
+      <path d="M10 20l.5-3h3l.5 3" />
+    </svg>
+  );
+}

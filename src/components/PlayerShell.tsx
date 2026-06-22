@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { ChevronLeftIcon } from "@/components/icons";
 
-/** Schlichter, mobil-first Rahmen für alle Spieler-Seiten. */
+/**
+ * Schlichter, mobil-first Inhaltsrahmen für Spieler-Seiten.
+ * Header und Footer kommen global aus dem Root-Layout (SiteHeader/SiteFooter).
+ */
 export function PlayerShell({
   children,
   subtitle,
@@ -13,38 +16,22 @@ export function PlayerShell({
   back?: boolean;
 }) {
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-canvas/80 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-3.5">
-          <Link href="/" className="tracking-tight">
-            <span className="text-[17px] font-semibold">Bierpong</span>
-            <span className="ml-1.5 text-[13px] font-normal text-muted">
-              von TSV Stelingen
-            </span>
-          </Link>
-          {subtitle ? (
-            <span className="text-[13px] font-medium text-muted">{subtitle}</span>
-          ) : null}
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-md flex-1 px-5 py-6">
-        {back ? (
-          <Link
-            href="/"
-            className="mb-4 -ml-1 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
-          >
-            <ChevronLeftIcon size={18} />
-            Zurück
-          </Link>
-        ) : null}
-        {children}
-      </main>
-      <footer className="no-print mx-auto w-full max-w-md px-5 py-8 text-center text-xs text-faint">
-        <p>Bei Fragen den Schiedsrichter ansprechen.</p>
-        <p className="mt-1 font-medium text-accent">
-          100 Jahre TSV Stelingen · 2026
+    <div className="mx-auto w-full max-w-md px-5 py-6">
+      {back ? (
+        <Link
+          href="/"
+          className="mb-4 -ml-1 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
+        >
+          <ChevronLeftIcon size={18} />
+          Zurück
+        </Link>
+      ) : null}
+      {subtitle ? (
+        <p className="mb-3 text-[13px] font-medium uppercase tracking-wide text-faint">
+          {subtitle}
         </p>
-      </footer>
+      ) : null}
+      {children}
     </div>
   );
 }
