@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { isOffline } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
@@ -22,6 +22,21 @@ function TeamPicker({
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: PointerEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -43,7 +58,7 @@ function TeamPicker({
               onChange(null);
               setQuery("");
             }}
-            className="text-sm font-medium text-accent"
+            className="-m-2 p-2 text-sm font-medium text-accent"
           >
             ändern
           </button>
@@ -53,7 +68,7 @@ function TeamPicker({
   }
 
   return (
-    <div>
+    <div ref={containerRef}>
       <label className="label">{label}</label>
       <input
         value={query}

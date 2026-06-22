@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type {
@@ -118,22 +119,17 @@ export function Dashboard({ email }: { email: string }) {
   return (
     <div className="min-h-full">
       <header className="sticky top-0 z-10 border-b border-line bg-canvas/80 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
-          <div>
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3">
+          <div className="min-w-0">
             <div className="text-[15px] font-semibold tracking-tight">
               Schiedsrichter
             </div>
-            <div className="text-xs text-faint">{email}</div>
+            <div className="truncate text-xs text-faint">{email}</div>
           </div>
-          <div className="flex items-center gap-2">
-            <a
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary btn-sm"
-            >
+          <div className="flex shrink-0 items-center gap-2">
+            <Link href="/" className="btn-secondary btn-sm">
               Standardansicht
-            </a>
+            </Link>
             <button onClick={logout} className="btn-secondary btn-sm">
               Abmelden
             </button>

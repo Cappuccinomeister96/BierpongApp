@@ -19,7 +19,7 @@ export function AnmeldeForm() {
   const [vorname1, setVorname1] = useState("");
   const [vorname2, setVorname2] = useState("");
   const [accepted, setAccepted] = useState(false);
-  const [showRules, setShowRules] = useState(true);
+  const [showRules, setShowRules] = useState(false);
 
   const [points, setPoints] = useState({ sieg: 3, niederlage: -1 });
   const [submitting, setSubmitting] = useState(false);
@@ -92,8 +92,8 @@ export function AnmeldeForm() {
           <p className="mb-4 mt-1 text-sm text-muted">
             Er scannt ihn und gibt euch frei – dann dürft ihr spielen.
           </p>
-          <div className="rounded-2xl border border-line p-3">
-            <QrCode value={confirmUrl} size={232} />
+          <div className="w-full max-w-[256px] rounded-2xl border border-line p-3">
+            <QrCode value={confirmUrl} size={232} className="w-full" />
           </div>
         </Card>
       </div>
@@ -120,11 +120,17 @@ export function AnmeldeForm() {
             className={`text-faint transition-transform ${showRules ? "rotate-180" : ""}`}
           />
         </button>
-        {showRules ? (
-          <div className="border-t border-line px-5 py-4">
-            <Rules siegPunkte={points.sieg} niederlagePunkte={points.niederlage} />
+        <div
+          className={`grid transition-all duration-300 ease-out ${
+            showRules ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="border-t border-line px-5 py-4">
+              <Rules siegPunkte={points.sieg} niederlagePunkte={points.niederlage} />
+            </div>
           </div>
-        ) : null}
+        </div>
       </Card>
 
       <Card className="space-y-4">

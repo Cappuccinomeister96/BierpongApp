@@ -5,7 +5,7 @@ export const metadata = { title: "Team anmelden – Bierpong" };
 
 export default function AnmeldenPage() {
   return (
-    <PlayerShell subtitle="Anmeldung">
+    <PlayerShell subtitle="Anmeldung" back>
       <AnmeldeForm />
     </PlayerShell>
   );

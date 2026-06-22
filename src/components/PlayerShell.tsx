@@ -1,12 +1,16 @@
 import Link from "next/link";
+import { ChevronLeftIcon } from "@/components/icons";
 
 /** Schlichter, mobil-first Rahmen für alle Spieler-Seiten. */
 export function PlayerShell({
   children,
   subtitle,
+  back,
 }: {
   children: React.ReactNode;
   subtitle?: string;
+  /** Zeigt oben einen „Zurück"-Link zur Startseite (für Unterseiten). */
+  back?: boolean;
 }) {
   return (
     <div className="flex min-h-full flex-col">
@@ -23,7 +27,18 @@ export function PlayerShell({
           ) : null}
         </div>
       </header>
-      <main className="mx-auto w-full max-w-md flex-1 px-5 py-6">{children}</main>
+      <main className="mx-auto w-full max-w-md flex-1 px-5 py-6">
+        {back ? (
+          <Link
+            href="/"
+            className="mb-4 -ml-1 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
+          >
+            <ChevronLeftIcon size={18} />
+            Zurück
+          </Link>
+        ) : null}
+        {children}
+      </main>
       <footer className="no-print mx-auto w-full max-w-md px-5 py-8 text-center text-xs text-faint">
         <p>Bei Fragen den Schiedsrichter ansprechen.</p>
         <p className="mt-1 font-medium text-accent">

@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ErrorNote } from "@/components/ui";
-import { LockIcon } from "@/components/icons";
+import { LockIcon, ChevronLeftIcon } from "@/components/icons";
 
 function LoginForm() {
   const supabase = createClient();
@@ -69,6 +70,14 @@ function LoginForm() {
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? "Anmelden…" : "Anmelden"}
         </button>
+
+        <Link
+          href="/"
+          className="-mt-1 flex w-full items-center justify-center gap-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
+        >
+          <ChevronLeftIcon size={18} />
+          Zurück zur Startseite
+        </Link>
       </form>
     </div>
   );

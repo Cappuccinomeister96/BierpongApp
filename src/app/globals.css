@@ -82,7 +82,7 @@ button {
     @apply text-accent hover:bg-accent/5;
   }
   .btn-sm {
-    @apply min-h-9 rounded-lg px-3 text-[13px];
+    @apply min-h-10 rounded-lg px-3 text-[13px];
   }
 
   .chip {

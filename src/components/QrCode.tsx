@@ -48,7 +48,7 @@ export function QrCode({
       alt="QR-Code"
       width={size}
       height={size}
-      className={`rounded-lg ${className}`}
+      className={`h-auto max-w-full rounded-lg ${className}`}
     />
   );
 }

@@ -54,7 +54,7 @@ function PendingCard({
         <span>{timeAgo(match.created_at)}</span>
       </div>
       {duplicate ? (
-        <p className="mb-2 chip bg-negative/10 text-negative">
+        <p className="mb-2 rounded-lg bg-negative/10 px-3 py-1.5 text-xs font-medium text-negative">
           Mögliches Duplikat – dieselbe Paarung kommt mehrfach vor
         </p>
       ) : null}
@@ -164,7 +164,7 @@ export function ApprovalQueue({
                   </div>
                   <button
                     onClick={() => revert(m.id)}
-                    className="shrink-0 text-xs font-medium text-accent"
+                    className="-m-2 shrink-0 p-2 text-xs font-medium text-accent"
                   >
                     rückgängig
                   </button>

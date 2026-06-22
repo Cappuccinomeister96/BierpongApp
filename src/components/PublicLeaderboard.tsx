@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
+import { ChevronLeftIcon } from "@/components/icons";
 import type { PublicLeaderboardRow } from "@/lib/types";
 
 export function PublicLeaderboard() {
@@ -41,6 +43,13 @@ export function PublicLeaderboard() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-12">
+      <Link
+        href="/"
+        className="no-print mb-4 -ml-1 inline-flex items-center gap-1 px-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
+      >
+        <ChevronLeftIcon size={18} />
+        Zurück
+      </Link>
       <header className="mb-6 flex items-end justify-between px-1">
         <div>
           <p className="text-[13px] font-medium uppercase tracking-widest text-faint">

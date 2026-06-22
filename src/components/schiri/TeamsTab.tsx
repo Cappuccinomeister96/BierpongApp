@@ -53,7 +53,7 @@ function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) 
 
   return (
     <div className="px-4 py-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span
@@ -65,7 +65,7 @@ function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) 
             {team.vorname1} &amp; {team.vorname2}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0">
           {!green ? (
             <button
               onClick={() => setStatus("green")}

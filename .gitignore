@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# netlify (generierte Build-Artefakte; nur state.json mit der Site-ID behalten)
+/.netlify/*
+!/.netlify/state.json
+deno.lock
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
