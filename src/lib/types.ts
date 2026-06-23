@@ -27,6 +27,17 @@ export type PublicTeam = {
   name: string;
 };
 
+/** Antwort der RPC submit_match. Bei `duplicate` existiert bereits eine offene
+ *  Meldung derselben Paarung – die Namen/Tisch stammen aus dieser Originalmeldung. */
+export type SubmitMatchResult = {
+  match_id: string;
+  duplicate: boolean;
+  team_a_name?: string;
+  team_b_name?: string;
+  winner_name?: string;
+  table_name?: string | null;
+};
+
 export type TableRow = {
   id: string;
   name: string;

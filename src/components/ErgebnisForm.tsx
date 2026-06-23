@@ -2,10 +2,22 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { isOffline } from "@/lib/util";
+import { firstRow, isOffline } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
 import { ErrorNote, SuccessHeader, WinnerPicker } from "@/components/ui";
-import type { PublicTeam } from "@/lib/types";
+import type { PublicTeam, SubmitMatchResult } from "@/lib/types";
+
+/** Daten der bereits offenen Meldung für den "schon eingereicht"-Hinweis. */
+type DuplicateInfo = {
+  teamA: string;
+  teamB: string;
+  winner: string;
+  table: string | null;
+};
+
+/** Wie lange der "schon eingereicht"-Hinweis stehen bleibt, bevor automatisch
+ *  zurück zum Formular gewechselt wird. */
+const DUPLICATE_NOTICE_MS = 6000;
 
 function TeamPicker({
   label,
@@ -123,6 +135,7 @@ export function ErgebnisForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [duplicate, setDuplicate] = useState<DuplicateInfo | null>(null);
 
   async function loadTeams() {
     setLoading(true);
@@ -156,7 +169,7 @@ export function ErgebnisForm({
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.rpc("submit_match", {
+      const { data, error } = await supabase.rpc("submit_match", {
         p_table_token: tableToken,
         p_team_a: teamA.id,
         p_team_b: teamB.id,
@@ -166,7 +179,19 @@ export function ErgebnisForm({
         setError(error.message || "Konnte nicht gespeichert werden. Bitte nochmal.");
         return;
       }
-      setDone(true);
+      const row = firstRow<SubmitMatchResult>(data);
+      if (row?.duplicate) {
+        // Es gibt bereits eine offene Meldung dieser Paarung – Namen/Tisch aus der
+        // Originalmeldung verwenden, im Zweifel auf die hier gewählten zurückfallen.
+        setDuplicate({
+          teamA: row.team_a_name ?? teamA.name,
+          teamB: row.team_b_name ?? teamB.name,
+          winner: row.winner_name ?? "",
+          table: row.table_name ?? tableName,
+        });
+      } else {
+        setDone(true);
+      }
     } catch {
       setError("Verbindungsproblem. Bitte erneut versuchen.");
     } finally {
@@ -180,6 +205,49 @@ export function ErgebnisForm({
     setWinnerId(null);
     setError(null);
     setDone(false);
+    setDuplicate(null);
+  }
+
+  // "Schon eingereicht"-Hinweis nach kurzer Zeit automatisch schließen.
+  useEffect(() => {
+    if (!duplicate) return;
+    const t = setTimeout(reset, DUPLICATE_NOTICE_MS);
+    return () => clearTimeout(t);
+  }, [duplicate]);
+
+  if (duplicate) {
+    return (
+      <div className="space-y-4">
+        <Card className="space-y-3">
+          <h1 className="text-xl font-semibold tracking-tight">
+            Schon eingereicht
+          </h1>
+          <p className="rounded-xl bg-accent/10 px-3.5 py-3 text-[15px] text-ink">
+            Das Ergebnis vom Spiel{" "}
+            <span className="font-medium">{duplicate.teamA}</span> gegen{" "}
+            <span className="font-medium">{duplicate.teamB}</span>
+            {duplicate.table ? (
+              <>
+                {" "}am Tisch{" "}
+                <span className="font-medium">{duplicate.table}</span>
+              </>
+            ) : null}{" "}
+            wurde bereits eingereicht
+            {duplicate.winner ? (
+              <>
+                {" "}(gemeldeter Sieger:{" "}
+                <span className="font-medium">{duplicate.winner}</span>)
+              </>
+            ) : null}
+            . Sobald der Schiedsrichter es bestätigt hat, kann erneut ein
+            Ergebnis eingereicht werden.
+          </p>
+        </Card>
+        <button onClick={reset} className="btn-primary w-full">
+          Verstanden
+        </button>
+      </div>
+    );
   }
 
   if (done) {
