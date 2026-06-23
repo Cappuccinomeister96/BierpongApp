@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useOrigin } from "@/lib/useOrigin";
 import { firstRow, isOffline } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
-import { Rules } from "@/components/Rules";
+import { Turnierregeln, Bierpongregeln } from "@/components/Rules";
 import { QrCode } from "@/components/QrCode";
 import { ErrorNote, SuccessHeader } from "@/components/ui";
 import { ChevronDownIcon } from "@/components/icons";
@@ -19,7 +19,6 @@ export function AnmeldeForm() {
   const [vorname1, setVorname1] = useState("");
   const [vorname2, setVorname2] = useState("");
   const [accepted, setAccepted] = useState(false);
-  const [showRules, setShowRules] = useState(false);
 
   const [points, setPoints] = useState({ sieg: 3, niederlage: -1 });
   const [submitting, setSubmitting] = useState(false);
@@ -109,29 +108,13 @@ export function AnmeldeForm() {
         </p>
       </div>
 
-      <Card className="!p-0">
-        <button
-          type="button"
-          onClick={() => setShowRules((s) => !s)}
-          className="flex w-full items-center justify-between px-5 py-4 text-[15px] font-semibold"
-        >
-          Regeln
-          <ChevronDownIcon
-            className={`text-faint transition-transform ${showRules ? "rotate-180" : ""}`}
-          />
-        </button>
-        <div
-          className={`grid transition-all duration-300 ease-out ${
-            showRules ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-          }`}
-        >
-          <div className="overflow-hidden">
-            <div className="border-t border-line px-5 py-4">
-              <Rules siegPunkte={points.sieg} niederlagePunkte={points.niederlage} />
-            </div>
-          </div>
-        </div>
-      </Card>
+      <Expandable title="Turnierregeln">
+        <Turnierregeln siegPunkte={points.sieg} niederlagePunkte={points.niederlage} />
+      </Expandable>
+
+      <Expandable title="Bierpongregeln">
+        <Bierpongregeln />
+      </Expandable>
 
       <Card className="space-y-4">
         <div>
@@ -187,5 +170,39 @@ export function AnmeldeForm() {
         </button>
       </Card>
     </form>
+  );
+}
+
+/** Aufklappbarer Block (Akkordeon) – verwaltet seinen Auf-/Zu-Zustand selbst. */
+function Expandable({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Card className="!p-0">
+      <button
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        className="flex w-full items-center justify-between px-5 py-4 text-[15px] font-semibold"
+      >
+        {title}
+        <ChevronDownIcon
+          className={`text-faint transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <div
+        className={`grid transition-all duration-300 ease-out ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-line px-5 py-4">{children}</div>
+        </div>
+      </div>
+    </Card>
   );
 }

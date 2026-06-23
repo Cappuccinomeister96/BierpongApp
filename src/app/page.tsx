@@ -5,7 +5,7 @@ const links = [
   {
     href: "/anmelden",
     title: "Team anmelden",
-    desc: "Melde dein Team an und tritt an",
+    desc: "Melde dein Team an. Die ersten drei Plätze bekommen einen Preis.",
     Icon: TeamIcon,
   },
   {
@@ -18,8 +18,8 @@ const links = [
 
 export default function Home() {
   return (
-    // flex-1 + justify-center: zentriert den Inhalt im Platz zwischen Header und Footer.
-    <div className="mx-auto flex w-full min-h-0 max-w-md flex-1 flex-col justify-center gap-4 px-5 py-2">
+    // flex-1: füllt den Platz zwischen Header und Footer; Inhalt startet oben (pt-6).
+    <div className="mx-auto flex w-full min-h-0 max-w-md flex-1 flex-col gap-4 px-5 pb-2 pt-6">
       <div className="text-center">
         <h2 className="text-2xl font-semibold leading-snug tracking-tight">
           Willkommen zum 100-jährigen Jubiläums-Bierpong-Turnier!
@@ -32,7 +32,7 @@ export default function Home() {
           <Link
             key={href}
             href={href}
-            className="card flex items-center justify-between gap-4 p-5 transition active:scale-[0.99]"
+            className="card flex items-center justify-between gap-4 border-2 border-accent p-5 transition active:scale-[0.99]"
           >
             <div className="min-w-0">
               <Icon size={32} className="text-ink" />

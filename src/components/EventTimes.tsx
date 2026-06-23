@@ -1,0 +1,74 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+
+/** Schneidet evtl. Sekunden ab ("20:00:00" -> "20:00"); null/leer -> "". */
+function hhmm(value: string | null | undefined): string {
+  return value ? value.slice(0, 5) : "";
+}
+
+/** Reine Darstellung: "Turnierende 22:00 · Siegerehrung 22:30".
+ *  Rendert nichts, wenn keine Zeit gesetzt ist. */
+export function EventTimes({
+  endTime,
+  siegerehrung,
+  className = "",
+}: {
+  endTime: string | null | undefined;
+  siegerehrung: string | null | undefined;
+  className?: string;
+}) {
+  const end = hhmm(endTime);
+  const sieg = hhmm(siegerehrung);
+  if (!end && !sieg) return null;
+
+  return (
+    <div
+      className={`flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm ${className}`}
+    >
+      {end ? (
+        <span>
+          <span className="text-muted">Turnierende</span>{" "}
+          <span className="font-semibold tabular-nums text-ink">{end}</span>
+        </span>
+      ) : null}
+      {end && sieg ? <span className="text-faint">·</span> : null}
+      {sieg ? (
+        <span>
+          <span className="text-muted">Siegerehrung</span>{" "}
+          <span className="font-semibold tabular-nums text-ink">{sieg}</span>
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+/** Lädt die Zeiten selbst aus der Config und zeigt sie an (für Server-Seiten). */
+export function EventTimesBanner({ className }: { className?: string }) {
+  const [times, setTimes] = useState<{
+    end: string | null;
+    sieg: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("config")
+      .select("end_time, siegerehrung_time")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (data) setTimes({ end: data.end_time, sieg: data.siegerehrung_time });
+      });
+  }, []);
+
+  if (!times) return null;
+  return (
+    <EventTimes
+      endTime={times.end}
+      siegerehrung={times.sieg}
+      className={className}
+    />
+  );
+}

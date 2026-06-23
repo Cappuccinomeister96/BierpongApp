@@ -11,14 +11,13 @@ export function SiteHeader() {
         href="/"
         className="relative mx-auto flex w-full max-w-md items-center gap-4 px-5 py-4"
       >
-        {/* Vereinslogo (transparenter Hintergrund): zum Tauschen public/Stelingen_TSV.gif ersetzen. */}
+        {/* Vereinslogo (transparenter Hintergrund): zum Tauschen public/tsv-stelingen-logo-v2.png ersetzen. */}
         <Image
-          src="/Stelingen_TSV.gif"
+          src="/tsv-stelingen-logo-v2.png"
           alt="TSV Stelingen"
-          width={60}
-          height={60}
+          width={120}
+          height={112}
           priority
-          unoptimized
           className="h-16 w-16 shrink-0 object-contain"
         />
         <div className="min-w-0">

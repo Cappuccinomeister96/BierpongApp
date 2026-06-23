@@ -6,6 +6,11 @@ import type { DashboardData } from "./Dashboard";
 
 const DEFAULTS = { name: "Bierpong-Turnier", sieg: 3, niederlage: -1 };
 
+/** Macht aus DB-Werten (z. B. "20:00" oder "20:00:00" / null) einen hh:mm-Wert fürs <input type="time">. */
+function toTimeInput(value: string | null | undefined): string {
+  return value ? value.slice(0, 5) : "";
+}
+
 export function ConfigTab({
   data,
   reload,
@@ -20,6 +25,10 @@ export function ConfigTab({
   const [sieg, setSieg] = useState(cfg?.sieg_punkte ?? DEFAULTS.sieg);
   const [niederlage, setNiederlage] = useState(
     cfg?.niederlage_punkte ?? DEFAULTS.niederlage,
+  );
+  const [endTime, setEndTime] = useState(toTimeInput(cfg?.end_time));
+  const [siegerehrung, setSiegerehrung] = useState(
+    toTimeInput(cfg?.siegerehrung_time),
   );
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -42,6 +51,8 @@ export function ConfigTab({
         tournament_name: name.trim() || DEFAULTS.name,
         sieg_punkte: Math.trunc(sieg),
         niederlage_punkte: Math.trunc(niederlage),
+        end_time: endTime || null,
+        siegerehrung_time: siegerehrung || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", 1);
@@ -91,6 +102,27 @@ export function ConfigTab({
               type="number"
               value={niederlage}
               onChange={(e) => setNiederlage(Number(e.target.value))}
+              className="input tabular-nums"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="label">Turnier-Endzeit</label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="input tabular-nums"
+            />
+          </div>
+          <div>
+            <label className="label">Siegerehrung</label>
+            <input
+              type="time"
+              value={siegerehrung}
+              onChange={(e) => setSiegerehrung(e.target.value)}
               className="input tabular-nums"
             />
           </div>
