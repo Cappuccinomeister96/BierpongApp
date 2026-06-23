@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
+import { EventTimes } from "@/components/EventTimes";
 import { ChevronLeftIcon } from "@/components/icons";
 import type { PublicLeaderboardRow } from "@/lib/types";
 
@@ -11,12 +12,18 @@ export function PublicLeaderboard() {
   const supabase = createClient();
   const [rows, setRows] = useState<PublicLeaderboardRow[]>([]);
   const [tournamentName, setTournamentName] = useState("Bierpong-Turnier");
+  const [endTime, setEndTime] = useState<string | null>(null);
+  const [siegerehrung, setSiegerehrung] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: lb }, { data: cfg }] = await Promise.all([
       supabase.from("leaderboard_public").select("*"),
-      supabase.from("config").select("tournament_name").eq("id", 1).single(),
+      supabase
+        .from("config")
+        .select("tournament_name, end_time, siegerehrung_time")
+        .eq("id", 1)
+        .single(),
     ]);
     if (lb) {
       const sorted = [...(lb as PublicLeaderboardRow[])].sort(
@@ -25,6 +32,10 @@ export function PublicLeaderboard() {
       setRows(sorted);
     }
     if (cfg?.tournament_name) setTournamentName(cfg.tournament_name);
+    if (cfg) {
+      setEndTime(cfg.end_time);
+      setSiegerehrung(cfg.siegerehrung_time);
+    }
     setUpdatedAt(new Date());
   }, [supabase]);
 
@@ -43,6 +54,11 @@ export function PublicLeaderboard() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-12">
+      <EventTimes
+        endTime={endTime}
+        siegerehrung={siegerehrung}
+        className="mb-4 rounded-xl border border-line bg-tint/40 px-4 py-2"
+      />
       <Link
         href="/"
         className="no-print mb-4 -ml-1 inline-flex items-center gap-1 px-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"

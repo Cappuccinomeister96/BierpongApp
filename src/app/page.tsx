@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronRightIcon, TeamIcon, TrophyIcon } from "@/components/icons";
+import { EventTimesBanner } from "@/components/EventTimes";
 
 const links = [
   {
@@ -20,10 +21,11 @@ export default function Home() {
   return (
     // flex-1: füllt den Platz zwischen Header und Footer; Inhalt startet oben (pt-6).
     <div className="mx-auto flex w-full min-h-0 max-w-md flex-1 flex-col gap-4 px-5 pb-2 pt-6">
-      <div className="text-center">
+      <div className="space-y-3 text-center">
         <h2 className="text-2xl font-semibold leading-snug tracking-tight">
           Willkommen zum 100-jährigen Jubiläums-Bierpong-Turnier!
         </h2>
+        <EventTimesBanner />
       </div>
 
       {/* space-y-4: Abstand zwischen den Karten bleibt unverändert. */}
