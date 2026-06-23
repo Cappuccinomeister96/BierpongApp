@@ -8,3 +8,7 @@ export function firstRow<T>(data: T | T[] | null): T | null {
 export function isOffline() {
   return typeof navigator !== "undefined" && !navigator.onLine;
 }
+
+/** Maximale Teamnamen-Länge – damit der Name im Leaderboard (Handy-Hochkant)
+ *  vollständig lesbar bleibt. Überall bei der Eingabe verwenden. */
+export const MAX_TEAM_NAME = 24;

@@ -24,22 +24,27 @@ export function EventTimes({
   if (!end && !sieg) return null;
 
   return (
-    <div
-      className={`flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm ${className}`}
-    >
-      {end ? (
-        <span>
-          <span className="text-muted">Turnierende</span>{" "}
-          <span className="font-semibold tabular-nums text-ink">{end}</span>
-        </span>
-      ) : null}
-      {end && sieg ? <span className="text-faint">·</span> : null}
-      {sieg ? (
-        <span>
-          <span className="text-muted">Siegerehrung</span>{" "}
-          <span className="font-semibold tabular-nums text-ink">{sieg}</span>
-        </span>
-      ) : null}
+    <div className={className}>
+      <table className="mx-auto border-separate border-spacing-x-4 border-spacing-y-1 text-sm">
+        <tbody>
+          {end ? (
+            <tr>
+              <td className="text-left text-muted">Turnierende</td>
+              <td className="text-right font-semibold tabular-nums text-ink">
+                {end}
+              </td>
+            </tr>
+          ) : null}
+          {sieg ? (
+            <tr>
+              <td className="text-left text-muted">Siegerehrung</td>
+              <td className="text-right font-semibold tabular-nums text-ink">
+                {sieg}
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
     </div>
   );
 }

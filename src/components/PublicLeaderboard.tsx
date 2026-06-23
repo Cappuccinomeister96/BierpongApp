@@ -57,15 +57,8 @@ export function PublicLeaderboard() {
       <EventTimes
         endTime={endTime}
         siegerehrung={siegerehrung}
-        className="mb-4 rounded-xl border border-line bg-tint/40 px-4 py-2"
+        className="mb-4"
       />
-      <Link
-        href="/"
-        className="no-print mb-4 -ml-1 inline-flex items-center gap-1 px-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
-      >
-        <ChevronLeftIcon size={18} />
-        Zurück
-      </Link>
       <header className="mb-6 flex items-end justify-between px-1">
         <div>
           <p className="text-[13px] font-medium uppercase tracking-widest text-faint">
@@ -95,6 +88,14 @@ export function PublicLeaderboard() {
       ) : (
         <LeaderboardTable rows={rows} highlightTop />
       )}
+
+      <Link
+        href="/"
+        className="no-print mt-6 -ml-1 inline-flex items-center gap-1 px-1 text-sm font-medium text-muted transition hover:text-ink active:scale-[0.98]"
+      >
+        <ChevronLeftIcon size={18} />
+        Zurück
+      </Link>
     </div>
   );
 }

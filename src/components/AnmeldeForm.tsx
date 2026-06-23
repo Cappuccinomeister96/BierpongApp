@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrigin } from "@/lib/useOrigin";
-import { firstRow, isOffline } from "@/lib/util";
+import { firstRow, isOffline, MAX_TEAM_NAME } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
 import { Turnierregeln, Bierpongregeln } from "@/components/Rules";
 import { QrCode } from "@/components/QrCode";
@@ -123,7 +123,7 @@ export function AnmeldeForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            maxLength={40}
+            maxLength={MAX_TEAM_NAME}
             placeholder="z. B. Die Bierbarone"
             className="input"
           />

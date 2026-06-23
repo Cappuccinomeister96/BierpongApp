@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { MAX_TEAM_NAME } from "@/lib/util";
 import { PlusIcon } from "@/components/icons";
 import type { Team, TeamStatus } from "@/lib/types";
 import type { DashboardData } from "./Dashboard";
@@ -105,6 +106,7 @@ function TeamRow({ team, reload }: { team: Team; reload: () => Promise<void> }) 
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Teamname"
+            maxLength={MAX_TEAM_NAME}
             className="input"
           />
           <div className="grid grid-cols-2 gap-2">
@@ -179,6 +181,7 @@ function AddTeam({ reload }: { reload: () => Promise<void> }) {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Teamname"
+        maxLength={MAX_TEAM_NAME}
         className="input"
       />
       <div className="grid grid-cols-2 gap-2">

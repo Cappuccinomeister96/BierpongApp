@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronDownIcon } from "@/components/icons";
+
 type LeaderboardTableRow = {
   team_id?: string;
   team: string;
@@ -11,8 +16,10 @@ type LeaderboardTableRow = {
 };
 
 /**
- * Gemeinsame Leaderboard-Tabelle.
- *  - showPlayers: zusätzliche Spalte mit den Vornamen (Schiri-Ansicht).
+ * Gemeinsame Leaderboard-Tabelle (Handy-Hochkant-optimiert).
+ *  - Zeile zeigt nur Rang, vollständigen Teamnamen und Punkte.
+ *  - Tippen klappt die Detailwerte (Spiele/Siege/Niederlagen, Spieler) inline auf.
+ *  - showPlayers: Spielernamen im Detail anzeigen (Schiri-Ansicht).
  *  - highlightTop: Plätze 1–3 als dunkle Badge hervorheben (öffentliche Ansicht).
  */
 export function LeaderboardTable({
@@ -24,64 +31,113 @@ export function LeaderboardTable({
   showPlayers?: boolean;
   highlightTop?: boolean;
 }) {
+  const [open, setOpen] = useState<Set<string>>(new Set());
+
+  function toggle(key: string) {
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
   return (
     <div className="card divide-y divide-line overflow-hidden">
       <div className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-faint sm:px-5">
         <span className="w-7 shrink-0">#</span>
         <span className="flex-1">Team</span>
-        {showPlayers ? (
-          <span className="hidden w-40 sm:block">Spieler</span>
-        ) : null}
-        <span className="w-9 text-center">Sp</span>
-        <span className="w-9 text-center">S</span>
-        <span className="w-9 text-center">N</span>
         <span className="w-14 text-right">Punkte</span>
+        <span className="w-5 shrink-0" />
       </div>
       {rows.map((r) => {
         const top = highlightTop && r.rank <= 3;
+        const key = r.team_id ?? r.team;
+        const isOpen = open.has(key);
         return (
-          <div
-            key={r.team_id ?? r.team}
-            className={`flex items-center gap-3 px-4 py-3.5 sm:px-5 ${
-              top ? "bg-tint/50" : ""
-            }`}
-          >
-            {highlightTop ? (
-              <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums ${
-                  top ? "bg-ink text-card" : "bg-inset text-muted"
+          <div key={key} className={top ? "bg-tint/50" : ""}>
+            <button
+              type="button"
+              onClick={() => toggle(key)}
+              aria-expanded={isOpen}
+              aria-label={`Details zu ${r.team}`}
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition active:bg-inset sm:px-5"
+            >
+              {highlightTop ? (
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums ${
+                    top ? "bg-ink text-card" : "bg-inset text-muted"
+                  }`}
+                >
+                  {r.rank}
+                </span>
+              ) : (
+                <span className="w-7 shrink-0 font-semibold tabular-nums">
+                  {r.rank}
+                </span>
+              )}
+              <span className="flex-1 break-words text-[15px] font-medium tracking-tight">
+                {r.team}
+              </span>
+              <span className="w-14 text-right text-lg font-semibold tabular-nums">
+                {r.points}
+              </span>
+              <ChevronDownIcon
+                size={18}
+                className={`w-5 shrink-0 text-faint transition-transform ${
+                  isOpen ? "rotate-180" : ""
                 }`}
-              >
-                {r.rank}
-              </span>
-            ) : (
-              <span className="w-7 shrink-0 font-semibold tabular-nums">
-                {r.rank}
-              </span>
-            )}
-            <span className="flex-1 truncate text-[15px] font-medium tracking-tight">
-              {r.team}
-            </span>
-            {showPlayers ? (
-              <span className="hidden w-40 truncate text-sm text-muted sm:block">
-                {r.vorname1} &amp; {r.vorname2}
-              </span>
-            ) : null}
-            <span className="w-9 text-center tabular-nums text-muted">
-              {r.games}
-            </span>
-            <span className="w-9 text-center tabular-nums text-positive">
-              {r.wins}
-            </span>
-            <span className="w-9 text-center tabular-nums text-negative">
-              {r.losses}
-            </span>
-            <span className="w-14 text-right text-lg font-semibold tabular-nums">
-              {r.points}
-            </span>
+              />
+            </button>
+
+            <div
+              className={`grid transition-all duration-300 ease-out ${
+                isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="px-4 pb-4 sm:px-5">
+                  {showPlayers && (r.vorname1 || r.vorname2) ? (
+                    <p className="mb-3 text-sm text-muted">
+                      {r.vorname1}
+                      {r.vorname1 && r.vorname2 ? " & " : ""}
+                      {r.vorname2}
+                    </p>
+                  ) : null}
+                  <div className="grid grid-cols-3 divide-x divide-line rounded-xl bg-inset py-3 text-center">
+                    <Stat label="Spiele" value={r.games} />
+                    <Stat label="Siege" value={r.wins} className="text-positive" />
+                    <Stat
+                      label="Niederlagen"
+                      value={r.losses}
+                      className="text-negative"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  className = "",
+}: {
+  label: string;
+  value: number;
+  className?: string;
+}) {
+  return (
+    <div className="px-2">
+      <div className={`text-xl font-semibold tabular-nums ${className}`}>
+        {value}
+      </div>
+      <div className="mt-0.5 text-[12px] text-muted">{label}</div>
     </div>
   );
 }
