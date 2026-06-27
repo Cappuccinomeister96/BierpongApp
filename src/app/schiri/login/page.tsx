@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +26,10 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [factorId, setFactorId] = useState<string | null>(null);
   const [challengeId, setChallengeId] = useState<string | null>(null);
+  // Synchroner Re-Entry-Schutz: verhindert, dass ein zweiter Submit (Doppeltipp
+  // auf Mobile, Autofill + Tap, Enter + Klick) dieselbe Challenge ein zweites
+  // Mal verifiziert. Das async `loading`-State greift dafür zu spät.
+  const submittingRef = useRef(false);
 
   // Beim Einstieg in die TOTP-Phase: Factor laden + Challenge starten
   useEffect(() => {
@@ -62,10 +66,13 @@ function LoginForm() {
 
   async function handlePassword(e: React.FormEvent) {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setError(null);
     setLoading(true);
     const result = await signInWithPassword(email, pin);
     setLoading(false);
+    submittingRef.current = false;
     if (result.error) {
       setError(result.error);
       return;
@@ -81,6 +88,8 @@ function LoginForm() {
   async function handleOtp(e: React.FormEvent) {
     e.preventDefault();
     if (!factorId || !challengeId) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setError(null);
     setLoading(true);
     const { error: vErr } = await supabase.auth.mfa.verify({
@@ -88,8 +97,9 @@ function LoginForm() {
       challengeId,
       code: otp.trim(),
     });
-    setLoading(false);
     if (vErr) {
+      setLoading(false);
+      submittingRef.current = false;
       setError("Falscher Code. Bitte erneut versuchen.");
       setOtp("");
       const { data: newChallenge } = await supabase.auth.mfa.challenge({
@@ -98,6 +108,8 @@ function LoginForm() {
       if (newChallenge) setChallengeId(newChallenge.id);
       return;
     }
+    // Erfolg: Guard bewusst nicht zurücksetzen – wir navigieren weg, ein
+    // zweiter Submit soll nicht mehr durchkommen.
     router.replace(redirect);
     router.refresh();
   }
@@ -155,6 +167,7 @@ function LoginForm() {
             type="button"
             onClick={async () => {
               await supabase.auth.signOut();
+              submittingRef.current = false;
               setPhase("password");
               setOtp("");
               setError(null);
