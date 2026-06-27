@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { DashboardData } from "./Dashboard";
 
@@ -148,6 +149,17 @@ export function ConfigTab({
           <li>Schiri-PIN an alle Schiedsrichter geben.</li>
           <li>Mit Testteams einen Durchlauf machen, danach hier komplett zurücksetzen.</li>
         </ul>
+      </section>
+
+      <section className="card space-y-3 p-5">
+        <h2 className="font-semibold tracking-tight">Sicherheit</h2>
+        <p className="text-sm text-muted">
+          2-Faktor-Authentifizierung schützt den Schiri-Bereich durch einen
+          zusätzlichen Code aus einer Authenticator-App.
+        </p>
+        <Link href="/schiri/mfa-setup" className="btn-secondary block text-center">
+          MFA einrichten / verwalten
+        </Link>
       </section>
 
       <section className="space-y-3 rounded-2xl border border-negative/20 bg-negative/5 p-5">

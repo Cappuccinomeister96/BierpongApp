@@ -27,6 +27,7 @@ function PendingCard({
   const supabase = createClient();
   const [winner, setWinner] = useState(match.winner_id);
   const [busy, setBusy] = useState(false);
+  const [confirmingReject, setConfirmingReject] = useState(false);
 
   async function approve() {
     setBusy(true);
@@ -71,18 +72,42 @@ function PendingCard({
         onChange={setWinner}
         disabled={busy}
       />
-      <div className="mt-3 flex gap-2">
-        <button onClick={approve} disabled={busy} className="btn-positive flex-1">
-          Bestätigen
-        </button>
-        <button
-          onClick={reject}
-          disabled={busy}
-          className="btn-secondary !text-negative"
-        >
-          Ablehnen
-        </button>
-      </div>
+      {confirmingReject ? (
+        <div className="mt-3 space-y-2">
+          <p className="text-xs font-medium text-negative">
+            Spiel wirklich ablehnen?
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={reject}
+              disabled={busy}
+              className="btn flex-1 bg-negative text-sm text-white hover:brightness-95"
+            >
+              Ja, ablehnen
+            </button>
+            <button
+              onClick={() => setConfirmingReject(false)}
+              disabled={busy}
+              className="btn-secondary flex-1 text-sm"
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 flex gap-2">
+          <button onClick={approve} disabled={busy} className="btn-positive flex-1">
+            Bestätigen
+          </button>
+          <button
+            onClick={() => setConfirmingReject(true)}
+            disabled={busy}
+            className="btn-secondary !text-negative"
+          >
+            Ablehnen
+          </button>
+        </div>
+      )}
     </div>
   );
 }

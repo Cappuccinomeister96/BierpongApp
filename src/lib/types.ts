@@ -6,6 +6,7 @@ export type Config = {
   tournament_name: string;
   sieg_punkte: number;
   niederlage_punkte: number;
+  max_teams: number;
   /** Endzeit des Turniers im Format hh:mm (oder null, wenn nicht gesetzt). */
   end_time: string | null;
   /** Uhrzeit der Siegerehrung im Format hh:mm (oder null, wenn nicht gesetzt). */
