@@ -1,9 +1,24 @@
 import { PlayerShell, Card } from "@/components/PlayerShell";
 import { ErgebnisForm } from "@/components/ErgebnisForm";
-import { createClient } from "@/lib/supabase/server";
-import { firstRow } from "@/lib/util";
+import { getTableName } from "@/lib/tables";
 
 export const metadata = { title: "Ergebnis eintragen – Bierpong" };
+
+// Token→Tischname ist über das Turnier praktisch statisch und wird gecacht
+// (siehe getTableName). Dadurch wird die Seite als ISR ausgeliefert: nach dem
+// ersten Scan eines Tokens kommt das HTML aus dem CDN – ohne Function-Cold-Start
+// und ohne DB-Abfrage. Die Team-Liste lädt das Formular weiterhin live im
+// Browser, bleibt also auch für spät angemeldete Teams tagesaktuell.
+export const revalidate = 3600;
+
+// Leeres Array: nichts zur Buildzeit vorrendern (anon darf die tables-Tabelle
+// nicht listen). Notwendig, damit die on-demand gerenderten Token-Seiten
+// überhaupt per ISR gecacht werden – ohne diesen Export bliebe die Route
+// vollständig dynamisch (no-store). dynamicParams ist standardmäßig true, also
+// werden unbekannte Tokens beim ersten Scan erzeugt und dann gecacht.
+export function generateStaticParams() {
+  return [];
+}
 
 export default async function TischPage({
   params,
@@ -12,16 +27,13 @@ export default async function TischPage({
 }) {
   const { token } = await params;
 
-  // Tischname auflösen (RPC ist für anon freigegeben); bei Fehler trotzdem
+  // Tischname auflösen (gecacht); bei Fehler/unbekanntem Token trotzdem
   // weiterarbeiten – das Ergebnis kann auch ohne Tischzuordnung gemeldet werden.
   let tableName: string | null = null;
   let invalidToken = false;
   try {
-    const supabase = await createClient();
-    const { data } = await supabase.rpc("get_table", { p_token: token });
-    const row = firstRow(data);
-    if (row?.name) tableName = row.name;
-    else invalidToken = true;
+    tableName = await getTableName(token);
+    if (!tableName) invalidToken = true;
   } catch {
     invalidToken = true;
   }
