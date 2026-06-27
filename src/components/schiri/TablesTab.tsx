@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrigin } from "@/lib/useOrigin";
 import { QrCode } from "@/components/QrCode";
+import { printQrCode } from "@/lib/printQr";
 import { PrinterIcon, PlusIcon } from "@/components/icons";
 import type { TableRow } from "@/lib/types";
 import type { DashboardData } from "./Dashboard";
@@ -24,6 +25,12 @@ function QrTile({
       <div className="rounded-xl border border-line p-2">
         <QrCode value={url} size={172} />
       </div>
+      <button
+        onClick={() => printQrCode(title, url)}
+        className="btn-secondary btn-sm mt-3"
+      >
+        <PrinterIcon size={16} /> Drucken
+      </button>
     </div>
   );
 }
@@ -63,13 +70,10 @@ export function TablesTab({
   return (
     <div className="space-y-8">
       <section>
-        <div className="no-print mb-3 flex items-center justify-between px-1">
+        <div className="no-print mb-3 px-1">
           <h2 className="text-xs font-medium uppercase tracking-wider text-faint">
             Allgemeine QR-Codes
           </h2>
-          <button onClick={() => window.print()} className="btn-secondary btn-sm">
-            <PrinterIcon size={16} /> Drucken
-          </button>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <QrTile title="Anmeldung" hint="Plakat zum Anmelden" url={`${origin}/anmelden`} />
@@ -117,7 +121,13 @@ export function TablesTab({
                 <div className="rounded-xl border border-line p-2">
                   <QrCode value={`${origin}/tisch/${t.token}`} size={156} />
                 </div>
-                <div className="no-print mt-3 flex gap-2">
+                <button
+                  onClick={() => printQrCode(t.name, `${origin}/tisch/${t.token}`)}
+                  className="btn-secondary btn-sm mt-3"
+                >
+                  <PrinterIcon size={16} /> Drucken
+                </button>
+                <div className="no-print mt-2 flex gap-2">
                   <button onClick={() => toggle(t)} className="btn-secondary btn-sm">
                     {t.active ? "Deaktivieren" : "Aktivieren"}
                   </button>
