@@ -3,13 +3,41 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { CheckIcon, LockIcon, ChevronRightIcon } from "@/components/icons";
 import type { DashboardData } from "./Dashboard";
 
 const DEFAULTS = { name: "Bierpong-Turnier", sieg: 3, niederlage: -1 };
 
+const CHECKLIST = [
+  "Supabase-Projekt auf Pro upgraden (kein Auto-Pause, Backups).",
+  "Im Tab Tische alle Tische anlegen und QR-Codes drucken & laminieren.",
+  "Anmelde- und Leaderboard-QR drucken.",
+  "Schiri-PIN an alle Schiedsrichter geben.",
+  "Mit Testteams einen Durchlauf machen, danach hier komplett zurücksetzen.",
+];
+
 /** Macht aus DB-Werten (z. B. "20:00" oder "20:00:00" / null) einen hh:mm-Wert fürs <input type="time">. */
 function toTimeInput(value: string | null | undefined): string {
   return value ? value.slice(0, 5) : "";
+}
+
+/** Einheitliches Abschnitts-Label wie in Teams/Tische. */
+function SectionLabel({
+  children,
+  tone = "default",
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "negative";
+}) {
+  return (
+    <h2
+      className={`mb-2 px-1 text-xs font-medium uppercase tracking-wider ${
+        tone === "negative" ? "text-negative/80" : "text-faint"
+      }`}
+    >
+      {children}
+    </h2>
+  );
 }
 
 export function ConfigTab({
@@ -74,111 +102,146 @@ export function ConfigTab({
   }
 
   return (
-    <div className="max-w-md space-y-6">
-      <section className="card space-y-4 p-5">
-        <h2 className="font-semibold tracking-tight">Einstellungen</h2>
-
-        <div>
-          <label className="label">Turniername</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
+    <div className="space-y-8">
+      {/* Einstellungen – volle Breite, Felder responsiv */}
+      <section>
+        <SectionLabel>Turnier-Einstellungen</SectionLabel>
+        <div className="card space-y-5 p-5">
           <div>
-            <label className="label">Punkte pro Sieg</label>
+            <label className="label">Turniername</label>
             <input
-              type="number"
-              value={sieg}
-              onChange={(e) => setSieg(Number(e.target.value))}
-              className="input tabular-nums"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input"
             />
           </div>
-          <div>
-            <label className="label">Punkte pro Niederlage</label>
-            <input
-              type="number"
-              value={niederlage}
-              onChange={(e) => setNiederlage(Number(e.target.value))}
-              className="input tabular-nums"
-            />
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="label">Punkte pro Sieg</label>
+              <input
+                type="number"
+                value={sieg}
+                onChange={(e) => setSieg(Number(e.target.value))}
+                className="input tabular-nums"
+              />
+            </div>
+            <div>
+              <label className="label">Punkte pro Niederlage</label>
+              <input
+                type="number"
+                value={niederlage}
+                onChange={(e) => setNiederlage(Number(e.target.value))}
+                className="input tabular-nums"
+              />
+            </div>
+            <div>
+              <label className="label">Turnier-Endzeit</label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="input tabular-nums"
+              />
+            </div>
+            <div>
+              <label className="label">Siegerehrung</label>
+              <input
+                type="time"
+                value={siegerehrung}
+                onChange={(e) => setSiegerehrung(e.target.value)}
+                className="input tabular-nums"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+            <p className="text-xs text-muted">
+              Änderungen wirken sofort auf das gesamte Leaderboard.
+            </p>
+            <div className="flex items-center gap-3">
+              {saved ? (
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-positive">
+                  <CheckIcon size={16} /> Gespeichert
+                </span>
+              ) : null}
+              <button onClick={save} disabled={busy} className="btn-primary">
+                {busy ? "Speichert…" : "Speichern"}
+              </button>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="label">Turnier-Endzeit</label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="input tabular-nums"
-            />
+      {/* Sekundäre Abschnitte: auf Desktop zweispaltig */}
+      <div className="grid gap-8 lg:grid-cols-2">
+        <section>
+          <SectionLabel>Checkliste vor dem Event</SectionLabel>
+          <div className="card p-5">
+            <ul className="space-y-3 text-sm">
+              {CHECKLIST.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-inset text-muted">
+                    <CheckIcon size={13} />
+                  </span>
+                  <span className="text-muted">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div>
-            <label className="label">Siegerehrung</label>
-            <input
-              type="time"
-              value={siegerehrung}
-              onChange={(e) => setSiegerehrung(e.target.value)}
-              className="input tabular-nums"
-            />
-          </div>
+        </section>
+
+        <div className="space-y-8">
+          <section>
+            <SectionLabel>Sicherheit</SectionLabel>
+            <Link
+              href="/schiri/mfa-setup"
+              className="card group flex items-center gap-4 p-4 transition hover:border-accent/40 active:scale-[0.99]"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-inset text-ink">
+                <LockIcon size={18} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium">
+                  MFA einrichten / verwalten
+                </span>
+                <span className="block text-sm text-muted">
+                  2-Faktor-Schutz per Authenticator-App.
+                </span>
+              </span>
+              <ChevronRightIcon
+                size={20}
+                className="shrink-0 text-faint transition group-hover:text-ink"
+              />
+            </Link>
+          </section>
+
+          <section>
+            <SectionLabel tone="negative">Gefahrenzone</SectionLabel>
+            <div className="space-y-3 rounded-2xl border border-negative/20 bg-negative/5 p-5">
+              <p className="text-sm text-muted">
+                Diese Aktionen lassen sich nicht rückgängig machen.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  onClick={() => reset(false)}
+                  disabled={busy}
+                  className="btn-secondary w-full !border-negative/30 !text-negative"
+                >
+                  Spiele löschen (Teams behalten)
+                </button>
+                <button
+                  onClick={() => reset(true)}
+                  disabled={busy}
+                  className="btn w-full bg-negative text-white hover:brightness-95"
+                >
+                  Alles zurücksetzen (inkl. Teams)
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button onClick={save} disabled={busy} className="btn-primary">
-            Speichern
-          </button>
-          {saved ? <span className="text-sm text-positive">Gespeichert</span> : null}
-        </div>
-        <p className="text-xs text-muted">
-          Änderungen wirken sofort auf das gesamte Leaderboard.
-        </p>
-      </section>
-
-      <section className="card space-y-2 p-5">
-        <h2 className="font-semibold tracking-tight">Checkliste vor dem Event</h2>
-        <ul className="space-y-1.5 text-sm text-muted">
-          <li>Supabase-Projekt auf Pro upgraden (kein Auto-Pause, Backups).</li>
-          <li>Im Tab Tische alle Tische anlegen und QR-Codes drucken &amp; laminieren.</li>
-          <li>Anmelde- und Leaderboard-QR drucken.</li>
-          <li>Schiri-PIN an alle Schiedsrichter geben.</li>
-          <li>Mit Testteams einen Durchlauf machen, danach hier komplett zurücksetzen.</li>
-        </ul>
-      </section>
-
-      <section className="card space-y-3 p-5">
-        <h2 className="font-semibold tracking-tight">Sicherheit</h2>
-        <p className="text-sm text-muted">
-          2-Faktor-Authentifizierung schützt den Schiri-Bereich durch einen
-          zusätzlichen Code aus einer Authenticator-App.
-        </p>
-        <Link href="/schiri/mfa-setup" className="btn-secondary block text-center">
-          MFA einrichten / verwalten
-        </Link>
-      </section>
-
-      <section className="space-y-3 rounded-2xl border border-negative/20 bg-negative/5 p-5">
-        <h2 className="font-semibold tracking-tight text-negative">Gefahrenzone</h2>
-        <button
-          onClick={() => reset(false)}
-          disabled={busy}
-          className="btn-secondary w-full !border-negative/30 !text-negative"
-        >
-          Alle Spiele löschen (Teams behalten)
-        </button>
-        <button
-          onClick={() => reset(true)}
-          disabled={busy}
-          className="btn w-full bg-negative text-white hover:brightness-95"
-        >
-          Komplett zurücksetzen
-        </button>
-      </section>
+      </div>
     </div>
   );
 }
