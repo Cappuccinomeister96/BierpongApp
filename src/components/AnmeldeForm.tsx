@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrigin } from "@/lib/useOrigin";
-import { firstRow, isOffline, MAX_TEAM_NAME } from "@/lib/util";
+import { firstRow, isOffline, MAX_TEAM_NAME, userMessage } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
 import { Turnierregeln, Bierpongregeln } from "@/components/Rules";
 import { QrCode } from "@/components/QrCode";
@@ -57,7 +57,9 @@ export function AnmeldeForm() {
         p_vorname2: vorname2,
       });
       if (error) {
-        setError(error.message || "Anmeldung fehlgeschlagen. Bitte nochmal versuchen.");
+        setError(
+          userMessage(error, "Anmeldung fehlgeschlagen. Bitte nochmal versuchen."),
+        );
         return;
       }
       const row = firstRow(data);

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { firstRow, isOffline } from "@/lib/util";
+import { firstRow, isOffline, userMessage } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
 import { ErrorNote, SuccessHeader, WinnerPicker } from "@/components/ui";
 import type { PublicTeam, SubmitMatchResult } from "@/lib/types";
@@ -176,7 +176,9 @@ export function ErgebnisForm({
         p_winner: winnerId,
       });
       if (error) {
-        setError(error.message || "Konnte nicht gespeichert werden. Bitte nochmal.");
+        setError(
+          userMessage(error, "Konnte nicht gespeichert werden. Bitte nochmal."),
+        );
         return;
       }
       const row = firstRow<SubmitMatchResult>(data);
