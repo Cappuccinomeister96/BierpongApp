@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { firstRow, isOffline, userMessage } from "@/lib/util";
 import { Card } from "@/components/PlayerShell";
 import { ErrorNote, SuccessHeader, WinnerPicker } from "@/components/ui";
 import type { PublicTeam, SubmitMatchResult } from "@/lib/types";
+
+/** Aktiver Tisch fürs Dropdown im Hauptansicht-Flow. */
+type TableOption = { token: string; name: string };
 
 /** Daten der bereits offenen Meldung für den "schon eingereicht"-Hinweis. */
 type DuplicateInfo = {
@@ -120,9 +124,13 @@ function TeamPicker({
 export function ErgebnisForm({
   tableToken,
   tableName,
+  selectable = false,
 }: {
-  tableToken: string;
-  tableName: string | null;
+  /** Fester Tisch (Tisch-QR-Flow). Entfällt im Dropdown-Modus. */
+  tableToken?: string;
+  tableName?: string | null;
+  /** Hauptansicht-Flow: Tisch per Dropdown wählen statt per QR-Scan. */
+  selectable?: boolean;
 }) {
   const supabase = createClient();
 
@@ -132,10 +140,19 @@ export function ErgebnisForm({
   const [teamB, setTeamB] = useState<PublicTeam | null>(null);
   const [winnerId, setWinnerId] = useState<string | null>(null);
 
+  const [tableOptions, setTableOptions] = useState<TableOption[]>([]);
+  const [selectedToken, setSelectedToken] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [duplicate, setDuplicate] = useState<DuplicateInfo | null>(null);
+
+  // Effektiver Tisch: im Dropdown-Modus der ausgewählte, sonst der feste.
+  const effectiveToken = selectable ? selectedToken : tableToken ?? "";
+  const effectiveName = selectable
+    ? tableOptions.find((t) => t.token === selectedToken)?.name ?? null
+    : tableName ?? null;
 
   async function loadTeams() {
     setLoading(true);
@@ -147,14 +164,24 @@ export function ErgebnisForm({
     setLoading(false);
   }
 
+  async function loadTables() {
+    const { data } = await supabase.rpc("list_active_tables");
+    setTableOptions((data as TableOption[]) ?? []);
+  }
+
   useEffect(() => {
     loadTeams();
+    if (selectable) loadTables();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (selectable && !selectedToken) {
+      setError("Bitte einen Tisch wählen.");
+      return;
+    }
     if (!teamA || !teamB) {
       setError("Bitte beide Teams wählen.");
       return;
@@ -170,7 +197,7 @@ export function ErgebnisForm({
     setSubmitting(true);
     try {
       const { data, error } = await supabase.rpc("submit_match", {
-        p_table_token: tableToken,
+        p_table_token: effectiveToken,
         p_team_a: teamA.id,
         p_team_b: teamB.id,
         p_winner: winnerId,
@@ -189,7 +216,7 @@ export function ErgebnisForm({
           teamA: row.team_a_name ?? teamA.name,
           teamB: row.team_b_name ?? teamB.name,
           winner: row.winner_name ?? "",
-          table: row.table_name ?? tableName,
+          table: row.table_name ?? effectiveName,
         });
       } else {
         setDone(true);
@@ -261,9 +288,9 @@ export function ErgebnisForm({
             Punkte.
           </SuccessHeader>
         </Card>
-        <button onClick={reset} className="btn-primary w-full">
-          Nächstes Ergebnis eintragen
-        </button>
+        <Link href="/" className="btn-primary w-full">
+          Zur Startseite
+        </Link>
       </div>
     );
   }
@@ -275,16 +302,36 @@ export function ErgebnisForm({
       <div className="px-1 pb-1">
         <h1 className="text-3xl font-semibold tracking-tight">Ergebnis</h1>
         <p className="mt-2 text-[15px] text-muted">
-          {tableName ? (
+          {!selectable && effectiveName ? (
             <>
-              Tisch <span className="font-medium text-ink">{tableName}</span>.{" "}
+              Tisch <span className="font-medium text-ink">{effectiveName}</span>.{" "}
             </>
           ) : null}
-          Wählt beide Teams und den Sieger.
+          {selectable
+            ? "Wählt Tisch, beide Teams und den Sieger."
+            : "Wählt beide Teams und den Sieger."}
         </p>
       </div>
 
       <Card className="space-y-4">
+        {selectable ? (
+          <div>
+            <label className="label">Tisch</label>
+            <select
+              value={selectedToken}
+              onChange={(e) => setSelectedToken(e.target.value)}
+              className="input"
+            >
+              <option value="">Tisch wählen…</option>
+              {tableOptions.map((t) => (
+                <option key={t.token} value={t.token}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+
         {loading ? (
           <p className="text-sm text-muted">Teams werden geladen…</p>
         ) : teams.length === 0 ? (

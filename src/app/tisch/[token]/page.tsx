@@ -39,7 +39,7 @@ export default async function TischPage({
   }
 
   return (
-    <PlayerShell subtitle={tableName ?? "Ergebnis"}>
+    <PlayerShell subtitle={tableName ?? "Ergebnis"} back>
       {invalidToken ? (
         <Card className="mb-4">
           <p className="text-sm text-muted">

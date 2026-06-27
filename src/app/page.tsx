@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { ChevronRightIcon, TeamIcon, TrophyIcon } from "@/components/icons";
+import {
+  ChevronRightIcon,
+  CheckIcon,
+  TeamIcon,
+  TrophyIcon,
+} from "@/components/icons";
 import { EventTimesBanner } from "@/components/EventTimes";
 
 const links = [
@@ -8,6 +13,12 @@ const links = [
     title: "Team anmelden",
     desc: "Melde dein Team an. Die ersten drei Plätze bekommen einen Preis.",
     Icon: TeamIcon,
+  },
+  {
+    href: "/melden",
+    title: "Ergebnis melden",
+    desc: "Tisch wählen und das Spielergebnis eintragen.",
+    Icon: CheckIcon,
   },
   {
     href: "/leaderboard",

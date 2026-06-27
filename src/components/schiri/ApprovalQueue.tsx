@@ -3,8 +3,186 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { WinnerPicker } from "@/components/ui";
+import { PlusIcon, ChevronDownIcon } from "@/components/icons";
 import type { MatchDetailed } from "@/lib/types";
 import type { DashboardData } from "./Dashboard";
+
+/**
+ * Schiri legt selbst ein Spiel an (#5). Solche Spiele zählen sofort
+ * (status "approved") – ohne Umweg über die Freigabe-Queue.
+ */
+function CreateMatch({
+  data,
+  reload,
+}: {
+  data: DashboardData;
+  reload: () => Promise<void>;
+}) {
+  const supabase = createClient();
+  const [open, setOpen] = useState(false);
+  const [teamAId, setTeamAId] = useState("");
+  const [teamBId, setTeamBId] = useState("");
+  const [winner, setWinner] = useState<string | null>(null);
+  const [tableId, setTableId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const teams = data.teams.filter((t) => t.status === "green" && !t.hidden);
+  const tables = data.tables.filter((t) => t.active);
+  const teamA = teams.find((t) => t.id === teamAId) ?? null;
+  const teamB = teams.find((t) => t.id === teamBId) ?? null;
+  const winnerOptions = [teamA, teamB].filter(Boolean) as {
+    id: string;
+    name: string;
+  }[];
+
+  function resetForm() {
+    setTeamAId("");
+    setTeamBId("");
+    setWinner(null);
+    setTableId("");
+    setErr(null);
+  }
+
+  async function create() {
+    setErr(null);
+    if (!teamAId || !teamBId || teamAId === teamBId) {
+      setErr("Bitte zwei verschiedene Teams wählen.");
+      return;
+    }
+    if (!winner) {
+      setErr("Bitte den Sieger wählen.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.from("matches").insert({
+      team_a_id: teamAId,
+      team_b_id: teamBId,
+      winner_id: winner,
+      table_id: tableId || null,
+      status: "approved",
+      approved_at: new Date().toISOString(),
+    });
+    setBusy(false);
+    if (error) {
+      setErr("Anlegen fehlgeschlagen. Bitte erneut versuchen.");
+      return;
+    }
+    resetForm();
+    setOpen(false);
+    await reload();
+  }
+
+  return (
+    <div className="card overflow-hidden">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold"
+      >
+        <span className="flex items-center gap-2">
+          <PlusIcon size={18} /> Spiel anlegen
+        </span>
+        <ChevronDownIcon
+          className={`text-faint transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open ? (
+        <div className="space-y-3 border-t border-line px-4 py-4">
+          {teams.length < 2 ? (
+            <p className="text-sm text-muted">
+              Mindestens zwei bestätigte Teams nötig.
+            </p>
+          ) : (
+            <>
+              <div>
+                <label className="label">Team A</label>
+                <select
+                  value={teamAId}
+                  onChange={(e) => {
+                    setTeamAId(e.target.value);
+                    setWinner(null);
+                  }}
+                  className="input"
+                >
+                  <option value="">Team wählen…</option>
+                  {teams
+                    .filter((t) => t.id !== teamBId)
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="label">Team B</label>
+                <select
+                  value={teamBId}
+                  onChange={(e) => {
+                    setTeamBId(e.target.value);
+                    setWinner(null);
+                  }}
+                  className="input"
+                >
+                  <option value="">Team wählen…</option>
+                  {teams
+                    .filter((t) => t.id !== teamAId)
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {teamA && teamB ? (
+                <div>
+                  <label className="label">Sieger</label>
+                  <WinnerPicker
+                    options={winnerOptions}
+                    value={winner}
+                    onChange={setWinner}
+                    disabled={busy}
+                  />
+                </div>
+              ) : null}
+
+              {tables.length > 0 ? (
+                <div>
+                  <label className="label">Tisch (optional)</label>
+                  <select
+                    value={tableId}
+                    onChange={(e) => setTableId(e.target.value)}
+                    className="input"
+                  >
+                    <option value="">Ohne Tisch</option>
+                    {tables.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+
+              {err ? (
+                <p className="text-sm font-medium text-negative">{err}</p>
+              ) : null}
+
+              <button
+                onClick={create}
+                disabled={busy}
+                className="btn-positive w-full"
+              >
+                Spiel anlegen (zählt sofort)
+              </button>
+            </>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -140,6 +318,8 @@ export function ApprovalQueue({
 
   return (
     <div className="space-y-6">
+      <CreateMatch data={data} reload={reload} />
+
       <section>
         <h2 className="mb-3 px-1 text-xs font-medium uppercase tracking-wider text-faint">
           Wartet auf Freigabe ({data.pending.length})
