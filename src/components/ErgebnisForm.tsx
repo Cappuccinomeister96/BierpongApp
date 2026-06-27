@@ -66,15 +66,15 @@ function TeamPicker({
     return (
       <div>
         <label className="label">{label}</label>
-        <div className="flex items-center justify-between rounded-xl border border-accent bg-accent/5 px-3.5 py-3">
-          <span className="font-medium">{value.name}</span>
+        <div className="flex items-center justify-between gap-2 rounded-xl border border-accent bg-accent/5 px-3.5 py-3">
+          <span className="min-w-0 break-words font-medium">{value.name}</span>
           <button
             type="button"
             onClick={() => {
               onChange(null);
               setQuery("");
             }}
-            className="-m-2 p-2 text-sm font-medium text-accent"
+            className="-m-2 shrink-0 p-2 text-sm font-medium text-accent"
           >
             ändern
           </button>
@@ -109,7 +109,7 @@ function TeamPicker({
                   onChange(t);
                   setOpen(false);
                 }}
-                className="block w-full border-b border-line px-3.5 py-3 text-left last:border-0 hover:bg-inset"
+                className="block w-full break-words border-b border-line px-3.5 py-3 text-left last:border-0 hover:bg-inset"
               >
                 {t.name}
               </button>

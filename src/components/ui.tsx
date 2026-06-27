@@ -59,7 +59,7 @@ export function WinnerPicker({
             key={o.id}
             onClick={() => onChange(o.id)}
             disabled={disabled}
-            className={`min-h-12 rounded-xl border px-3 py-3 text-[15px] font-medium transition active:scale-[0.98] ${
+            className={`min-h-12 min-w-0 break-words rounded-xl border px-3 py-3 text-[15px] font-medium transition active:scale-[0.98] ${
               active
                 ? "border-positive bg-positive/10 text-positive"
                 : "border-line hover:bg-inset"
