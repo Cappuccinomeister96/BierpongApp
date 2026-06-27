@@ -48,29 +48,37 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Eingeloggt, aber MFA noch ausstehend → Login mit step=mfa
-  if (isSchiriArea && user) {
+  // AAL-Level einmal bestimmen. "fullyAuthed" ist nur dann true, wenn die
+  // Session entweder AAL2 erreicht hat ODER gar keine MFA verlangt wird
+  // (nextLevel == currentLevel, z. B. vor der MFA-Einrichtung). Lässt sich das
+  // Level nicht ermitteln (Fehler -> aalData null), gilt fail-closed: NICHT
+  // vollständig authentifiziert. So bleibt der DB-Schutz nicht die einzige
+  // Verteidigungslinie und es entsteht kein Redirect-Loop.
+  let fullyAuthed = false;
+  if (user) {
     const { data: aalData } =
       await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aalData?.nextLevel === "aal2" && aalData?.currentLevel !== "aal2") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/schiri/login";
-      url.searchParams.set("redirect", pathname);
-      url.searchParams.set("step", "mfa");
-      return NextResponse.redirect(url);
-    }
+    fullyAuthed =
+      aalData != null &&
+      (aalData.currentLevel === "aal2" ||
+        aalData.nextLevel === aalData.currentLevel);
+  }
+
+  // Eingeloggt, aber MFA noch ausstehend → Login mit step=mfa
+  if (isSchiriArea && user && !fullyAuthed) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/schiri/login";
+    url.searchParams.set("redirect", pathname);
+    url.searchParams.set("step", "mfa");
+    return NextResponse.redirect(url);
   }
 
   // Bereits vollständig eingeloggt → Login-Seite überspringen
-  if (pathname === "/schiri/login" && user) {
-    const { data: aalData } =
-      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (!aalData || aalData.nextLevel === aalData.currentLevel) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/schiri";
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
+  if (pathname === "/schiri/login" && user && fullyAuthed) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/schiri";
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
   return response;
