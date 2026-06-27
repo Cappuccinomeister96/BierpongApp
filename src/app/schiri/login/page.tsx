@@ -19,6 +19,7 @@ function LoginForm() {
   const [phase, setPhase] = useState<Phase>(
     params.get("step") === "mfa" ? "totp" : "password",
   );
+  const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +64,7 @@ function LoginForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const result = await signInWithPassword(pin);
+    const result = await signInWithPassword(email, pin);
     setLoading(false);
     if (result.error) {
       setError(result.error);
@@ -189,6 +190,22 @@ function LoginForm() {
         </div>
 
         <div>
+          <label className="label" htmlFor="schiri-email">
+            E-Mail
+          </label>
+          <input
+            id="schiri-email"
+            type="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-Mail eingeben"
+            className="input"
+          />
+        </div>
+
+        <div>
           <label className="label" htmlFor="schiri-pw">
             Passwort
           </label>
@@ -196,7 +213,6 @@ function LoginForm() {
             id="schiri-pw"
             type="password"
             autoComplete="current-password"
-            autoFocus
             value={pin}
             onChange={(e) => setPin(e.target.value)}
             placeholder="Passwort eingeben"

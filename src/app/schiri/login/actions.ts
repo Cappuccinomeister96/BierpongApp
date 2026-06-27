@@ -3,11 +3,12 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function signInWithPassword(
+  email: string,
   password: string,
 ): Promise<{ error: string | null; needsMFA: boolean }> {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email: process.env.SCHIRI_EMAIL!,
+    email,
     password,
   });
   if (error) {
